@@ -1203,6 +1203,18 @@
   <button class="sticky-dismiss" id="stickyDismiss" title="Luk">✕</button>
 </div>
 
+<!-- Skjult form til Bluenordix lead submission (omgår CORS) -->
+<iframe name="leadSink" style="display:none" aria-hidden="true"></iframe>
+<form id="leadForm"
+  action="https://altidenergi.bluenordix.com/api/v1/leads?api_token=nP4TLHCECC9cKnb9rHDqt3FIb146rbl5ZBOFh0Xw0EkLkce1XpEijuQzbiUN"
+  method="POST"
+  target="leadSink"
+  style="display:none">
+  <input type="hidden" name="campaign_id" value="69" />
+  <input type="hidden" name="name"        id="leadName" />
+  <input type="hidden" name="phone"       id="leadPhone" />
+</form>
+
 <!-- Sticky callback mini-form -->
 <div class="sticky-callback" id="stickyCallback">
   <h4>
@@ -1823,7 +1835,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
   });
 
   // Callback submit
-  document.getElementById("cbSubmit").addEventListener("click", async () => {
+  document.getElementById("cbSubmit").addEventListener("click", () => {
     const name  = document.getElementById("cbName").value.trim();
     const phone = document.getElementById("cbPhone").value.trim();
     if (!name || !phone) {
@@ -1831,19 +1843,9 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
       document.getElementById("cbPhone").style.borderColor = phone ? "" : "var(--yellow)";
       return;
     }
-    const btn = document.getElementById("cbSubmit");
-    btn.disabled = true;
-    btn.textContent = "Sender…";
-    try {
-      await submitLead(name, phone);
-      document.getElementById("callbackForm").innerHTML =
-        `<p class="callback-success">✓ Tak, ${escHtml(name)}! Vi ringer dig op hurtigst muligt.</p>`;
-    } catch {
-      btn.disabled = false;
-      btn.textContent = "Send – ring mig op";
-      document.getElementById("callbackForm").insertAdjacentHTML("beforeend",
-        `<p style="color:var(--red,#e53);font-size:13px;margin-top:8px">Noget gik galt – prøv igen eller ring til os direkte.</p>`);
-    }
+    submitLead(name, phone);
+    document.getElementById("callbackForm").innerHTML =
+      `<p class="callback-success">✓ Tak, ${escHtml(name)}! Vi ringer dig op hurtigst muligt.</p>`;
   });
 }
 
@@ -1893,13 +1895,11 @@ function hideStickyBar() {
 document.getElementById("stickyDismiss").addEventListener("click", hideStickyBar);
 
 /* ── Bluenordix lead submission ──────────────────────────────── */
-async function submitLead(name, phone) {
-  const body = new URLSearchParams({ campaign_id: 69, name, phone });
-  await fetch(
-    "https://altidenergi.bluenordix.com/api/v1/leads?api_token=nP4TLHCECC9cKnb9rHDqt3FIb146rbl5ZBOFh0Xw0EkLkce1XpEijuQzbiUN",
-    { method: "POST", body }
-  );
-  // Læser ikke response – leadet oprettes korrekt uanset svar-format
+function submitLead(name, phone) {
+  // Bruger hidden form submit – omgår CORS fuldstændigt
+  document.getElementById("leadName").value  = name;
+  document.getElementById("leadPhone").value = phone;
+  document.getElementById("leadForm").submit();
 }
 
 document.getElementById("stickyCallbackBtn").addEventListener("click", () => {
@@ -1913,27 +1913,17 @@ document.getElementById("stickyCallbackClose").addEventListener("click", () => {
   stickyBar.classList.add("visible");
 });
 
-document.getElementById("scbSubmit").addEventListener("click", async () => {
+document.getElementById("scbSubmit").addEventListener("click", () => {
   const name  = document.getElementById("scbName").value.trim();
   const phone = document.getElementById("scbPhone").value.trim();
   document.getElementById("scbName").style.borderColor  = name  ? "" : "var(--yellow)";
   document.getElementById("scbPhone").style.borderColor = phone ? "" : "var(--yellow)";
   if (!name || !phone) return;
 
-  const btn = document.getElementById("scbSubmit");
-  btn.disabled = true;
-  btn.textContent = "…";
-  try {
-    await submitLead(name, phone);
-    stickyCallback.innerHTML = `<p style="color:var(--teal);font-weight:700;font-size:15px;padding:4px 0">
-      ✓ Tak, ${escHtml(name)}! Vi ringer dig op hurtigst muligt.
-    </p>`;
-  } catch {
-    btn.disabled = false;
-    btn.textContent = "Send";
-    document.getElementById("scbPhone").insertAdjacentHTML("afterend",
-      `<p style="color:#e53;font-size:12px;margin-top:4px">Noget gik galt – prøv igen.</p>`);
-  }
+  submitLead(name, phone);
+  stickyCallback.innerHTML = `<p style="color:var(--teal);font-weight:700;font-size:15px;padding:4px 0">
+    ✓ Tak, ${escHtml(name)}! Vi ringer dig op hurtigst muligt.
+  </p>`;
   setTimeout(hideStickyBar, 3000);
 });
 
