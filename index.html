@@ -1099,10 +1099,13 @@
       </label>
 
       <div class="ev-km-field hidden" id="evKmField">
-        <label for="evKmInput">Hvor mange km kører du om året?</label>
-        <div class="ev-km-row">
-          <input type="number" id="evKmInput" min="1000" max="100000" step="1000" value="15000" />
-          <span class="ev-km-unit">km/år</span>
+        <label for="evKmSlider">Hvor mange km kører du om året?</label>
+        <div class="slider-row">
+          <input type="range" id="evKmSlider" min="1000" max="50000" step="1000" value="15000" />
+          <div class="kwh-display">
+            <input type="number" id="evKmInput" value="15000" min="1000" max="50000" step="1000" />
+            <span>km/år</span>
+          </div>
         </div>
       </div>
 
@@ -1194,6 +1197,7 @@ const productSelect      = document.getElementById("productSelect");
 const productField       = document.getElementById("productField");
 const evKmField          = document.getElementById("evKmField");
 const evKmInput          = document.getElementById("evKmInput");
+const evKmSlider         = document.getElementById("evKmSlider");
 const evSub              = document.getElementById("evSub");
 
 const EV_KWH_PER_KM = 0.2; // kWh per km
@@ -1253,7 +1257,17 @@ document.querySelectorAll("input[name='housing']").forEach(r => {
   r.addEventListener("change", updateDisplay);
 });
 evToggle.addEventListener("change", updateDisplay);
-evKmInput.addEventListener("input", updateDisplay);
+evKmSlider.addEventListener("input", () => {
+  evKmInput.value = evKmSlider.value;
+  updateDisplay();
+});
+evKmInput.addEventListener("change", () => {
+  let v = Math.max(1000, Math.min(50000, Number(evKmInput.value) || 15000));
+  v = Math.round(v / 1000) * 1000;
+  evKmInput.value = v;
+  evKmSlider.value = v;
+  updateDisplay();
+});
 
 /* ── Region change → reload providers ───────────────────────── */
 document.querySelectorAll("input[name='region']").forEach(r => {
