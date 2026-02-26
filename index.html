@@ -1550,14 +1550,6 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
         </div>
       </div>`;
     }
-  } else {
-    // Ingen provider valgt → vis generel stat
-    html += `
-    <div class="savings-banner">
-      <div class="label">Altid Energi vs. markedet</div>
-      <div class="amount">${pricierCount} ud af ${totalOthers}</div>
-      <div class="sub">elselskaber opkræver <strong>mere end Altid Energi</strong> for ${fmtNum(consumption)} kWh/år</div>
-    </div>`;
   }
 
   // ── Altid Energi cost box ────────────────────────────────────
