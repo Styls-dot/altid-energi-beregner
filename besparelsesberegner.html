@@ -614,7 +614,7 @@
       font-size: 13px;
       color: var(--text-base);
     }
-    .comp-table tbody tr.product-sub-row:last-of-type td { border-bottom: 2px solid var(--border); }
+    .comp-table tbody tr.product-sub-row:last-child td { border-bottom: 2px solid var(--border); }
 
     /* CTA */
     .cta-card {
@@ -1654,32 +1654,15 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
       : "";
     const rankCell = isAE ? "★" : isCurrent ? "→" : rank;
     let out = "";
-    if (products.length === 1) {
-      const product = products[0];
-      const diff    = product.totalCost - aeCost;
-      const subCost = (product.subscriptionMonthly || 0) * 12;
-      out += `
-          <tr class="${rowClass}">
-            <td class="rank">${rankCell}</td>
-            <td>
-              <div class="comp-name">${escHtml(company.name)}${compBadge}</div>
-              <div class="comp-product">${escHtml(product.name)}${makeIntroPill(product)}${isCurrent && selectedProductName === product.name ? myProductBadge : ""}</div>
-            </td>
-            <td>${makeSurchStr(product)}</td>
-            <td class="num">${fmtDKK(subCost)} kr.</td>
-            <td class="num">${fmtDKK(product.totalCost)} kr.</td>
-            <td class="num">${makeDiffCell(diff, isAE)}</td>
-          </tr>`;
-    } else {
-      out += `
+    out += `
           <tr class="company-group-header ${rowClass}">
             <td class="rank">${rankCell}</td>
             <td colspan="5"><span class="comp-name">${escHtml(company.name)}${compBadge}</span></td>
           </tr>`;
-      products.forEach(product => {
-        const diff    = product.totalCost - aeCost;
-        const subCost = (product.subscriptionMonthly || 0) * 12;
-        out += `
+    products.forEach(product => {
+      const diff    = product.totalCost - aeCost;
+      const subCost = (product.subscriptionMonthly || 0) * 12;
+      out += `
           <tr class="product-sub-row ${rowClass}">
             <td></td>
             <td class="comp-product-cell">${escHtml(product.name)}${makeIntroPill(product)}${isCurrent && selectedProductName === product.name ? myProductBadge : ""}</td>
@@ -1688,8 +1671,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
             <td class="num">${fmtDKK(product.totalCost)} kr.</td>
             <td class="num">${makeDiffCell(diff, isAE)}</td>
           </tr>`;
-      });
-    }
+    });
     return out;
   }
 
