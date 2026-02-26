@@ -772,6 +772,18 @@
       transition: transform .35s cubic-bezier(.4,0,.2,1);
     }
     .sticky-bar.visible { transform: translateY(0); }
+    /* Iframe-mode: position absolute styret via JS */
+    body.in-iframe .sticky-bar,
+    body.in-iframe .sticky-callback {
+      position: absolute;
+      bottom: auto;
+      left: 0; right: 0;
+      transform: translateY(200px);
+    }
+    body.in-iframe .sticky-bar.visible,
+    body.in-iframe .sticky-callback.visible {
+      transform: translateY(0);
+    }
     .sticky-bar-text {
       flex: 1;
       min-width: 0;
@@ -1639,13 +1651,21 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
 
   resultsEl.innerHTML = html;
   resultsEl.classList.remove("hidden");
-  resultsEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (inIframe) {
+    window.parent.postMessage({ type: "ae-scroll-to", offset: resultsEl.offsetTop - 20 }, "*");
+  } else {
+    resultsEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   document.getElementById("resetBtn").addEventListener("click", () => {
     resultsEl.classList.add("hidden");
     hideStickyBar();
     productSelect.value = "";
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (inIframe) {
+      window.parent.postMessage({ type: "ae-scroll-to", offset: 0 }, "*");
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   });
 
   // Vis sticky bar med evt. besparelsesbeløb
@@ -1744,6 +1764,24 @@ document.getElementById("scbSubmit").addEventListener("click", () => {
   </p>`;
   setTimeout(hideStickyBar, 3000);
 });
+
+/* ── Iframe-detektering ──────────────────────────────────────── */
+const inIframe = window !== window.top;
+if (inIframe) document.body.classList.add("in-iframe");
+
+/* ── Sticky bar i iframe-mode: positionér via parent scroll ──── */
+if (inIframe) {
+  window.addEventListener("message", function(e) {
+    if (!e.data || e.data.type !== "ae-parent-scroll") return;
+    const { scrollY, innerHeight, iframeOffsetTop } = e.data;
+    const visibleBottom = scrollY + innerHeight - iframeOffsetTop;
+    [stickyBar, stickyCallback].forEach(el => {
+      if (el.classList.contains("visible")) {
+        el.style.top = Math.max(0, visibleBottom - el.offsetHeight) + "px";
+      }
+    });
+  });
+}
 
 /* ── Init ────────────────────────────────────────────────────── */
 loadProviders();
