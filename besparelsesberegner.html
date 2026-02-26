@@ -1224,6 +1224,7 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 min
 
 /* ── State ───────────────────────────────────────────────────── */
 let companiesCache = {}; // key: "DK1_5000" → { data, ts }
+let leadContext    = {}; // gemmes når resultater vises
 
 /* ── DOM ─────────────────────────────────────────────────────── */
 const provSelect         = document.getElementById("providerSelect");
@@ -1787,6 +1788,14 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
     }
   });
 
+  // Gem kontekst til lead submission
+  leadContext = {
+    provider: currentCheapest ? currentCheapest.company.name : null,
+    product:  selectedProductName || null,
+    saving:   currentSaving > 0 ? currentSaving : null,
+    kwh:      consumption,
+  };
+
   // Vis sticky bar – med range-tekst hvis ingen aftale er valgt
   let stickyText = null;
   if (currentSlug && !selectedProductName && currentFiltered && currentFiltered.length > 1) {
@@ -1888,6 +1897,16 @@ document.getElementById("stickyDismiss").addEventListener("click", hideStickyBar
 /* ── Bluenordix lead submission ──────────────────────────────── */
 async function submitLead(name, phone) {
   const body = new URLSearchParams({ campaign_id: 69, name, phone });
+
+  // Tilføj kontekst fra beregneren
+  if (leadContext.provider) body.set("company_name", leadContext.provider);
+  const notes = [
+    leadContext.product ? `Aftale: ${leadContext.product}` : null,
+    leadContext.saving  ? `Besparelse: ${fmtDKK(leadContext.saving)} kr./år` : null,
+    leadContext.kwh     ? `Forbrug: ${fmtNum(leadContext.kwh)} kWh/år` : null,
+  ].filter(Boolean).join(" · ");
+  if (notes) body.set("phone_description", notes);
+
   const res = await fetch(
     "https://altidenergi.bluenordix.com/api/v1/leads?api_token=nP4TLHCECC9cKnb9rHDqt3FIb146rbl5ZBOFh0Xw0EkLkce1XpEijuQzbiUN",
     { method: "POST", body }
