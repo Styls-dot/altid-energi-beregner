@@ -1492,6 +1492,7 @@ async function calculate() {
 
 /* ── Render results ──────────────────────────────────────────── */
 function renderResults({ consumption, region, aeBest, aeCompany, competitors, currentSlug, currentCheapest, currentFiltered, selectedProductName }) {
+  const VAT    = 1.25; // API leverer priser ekskl. moms
   const aeCost = aeBest.totalCost;
 
   // Antal produkter (ekskl. AE) der er dyrere end AE
@@ -1505,7 +1506,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
 
   // ── Besparelsesbanners ────────────────────────────────────────
   if (currentCheapest) {
-    const saving = currentCheapest.product.totalCost - aeCost;
+    const saving = Math.round((currentCheapest.product.totalCost - aeCost) * VAT);
 
     if (saving > 0) {
       html += `
@@ -1548,9 +1549,9 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
   const aeSurchargeKr   = aeBest.consumptionSurcharge || 0; // kr/kWh fra API
   const aeSurchDesc     = aeSurchargeKr === 0
     ? "0 øre/kWh tillæg"
-    : `${fmtOere(aeSurchargeKr)} øre/kWh tillæg`;
-  // API returnerer priser ekskl. moms – gang med 1,25 for at vise hvad kunden betaler
-  const aeAnnualCost    = Math.round((aeSubPerMonth * 12 + aeSurchargeKr * consumption) * 1.25);
+    : `${fmtOere(aeSurchargeKr * VAT)} øre/kWh tillæg`;
+  // API returnerer priser ekskl. moms – gang med VAT for at vise hvad kunden betaler
+  const aeAnnualCost    = Math.round((aeSubPerMonth * 12 + aeSurchargeKr * consumption) * VAT);
 
   html += `
   <div class="ae-cost">
@@ -1572,7 +1573,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
       <line x1="12" y1="16" x2="12.01" y2="16"/>
     </svg>
     <span>
-      Sammenligningen viser hvad hvert selskab opkræver <strong>oven på spotprisen</strong>:
+      Alle priser er <strong>inkl. moms</strong> og viser hvad hvert selskab opkræver <strong>oven på spotprisen</strong>:
       spotpristillæg + abonnement. Selve spotprisen fra elbørsen er ens for alle variable produkter.
     </span>
   </div>`;
@@ -1617,7 +1618,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
             <th>Selskab</th>
             <th>Tillæg pr. kWh</th>
             <th class="num">Abo./år</th>
-            <th class="num">Total/år</th>
+            <th class="num">Total/år inkl. moms</th>
             <th class="num">Mere end Altid Energi</th>
           </tr>
         </thead>
@@ -1642,7 +1643,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
     return `<span class="diff-positive">+${fmtDKK(diff)} kr.</span>`;
   }
   function makeSurchStr(product) {
-    const surcharge = product.consumptionSurcharge || 0;
+    const surcharge = (product.consumptionSurcharge || 0) * VAT;
     return surcharge === 0
       ? `<span class="surcharge-pill zero">0 øre</span>`
       : `<span class="surcharge-pill">${fmtOere(surcharge)} øre</span>`;
@@ -1673,15 +1674,15 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
             <td colspan="5"><span class="comp-name">${escHtml(company.name)}${compBadge}</span></td>
           </tr>`;
     products.forEach(product => {
-      const diff    = product.totalCost - aeCost;
-      const subCost = (product.subscriptionMonthly || 0) * 12;
+      const diff    = Math.round((product.totalCost - aeCost) * VAT);
+      const subCost = Math.round((product.subscriptionMonthly || 0) * 12 * VAT);
       out += `
           <tr class="product-sub-row ${rowClass}">
             <td></td>
             <td class="comp-product-cell">${escHtml(product.name)}${makeIntroPill(product)}${isCurrent && selectedProductName === product.name ? myProductBadge : ""}</td>
             <td>${makeSurchStr(product)}</td>
             <td class="num">${fmtDKK(subCost)} kr.</td>
-            <td class="num">${fmtDKK(product.totalCost)} kr.</td>
+            <td class="num">${fmtDKK(Math.round(product.totalCost * VAT))} kr.</td>
             <td class="num">${makeDiffCell(diff, isAE)}</td>
           </tr>`;
     });
@@ -1721,7 +1722,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
   html += `</div>`;
 
   // ── CTA ───────────────────────────────────────────────────────
-  const currentSaving = currentCheapest ? currentCheapest.product.totalCost - aeCost : null;
+  const currentSaving = currentCheapest ? Math.round((currentCheapest.product.totalCost - aeCost) * VAT) : null;
   const ctaHeadline = currentSaving > 0
     ? `Spar ${fmtDKK(currentSaving)} kr. om året – skift i dag`
     : "Skift til Altid Energi";
@@ -1776,7 +1777,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
   // Vis sticky bar – med range-tekst hvis ingen aftale er valgt
   let stickyText = null;
   if (currentSlug && !selectedProductName && currentFiltered && currentFiltered.length > 1) {
-    const savings = currentFiltered.map(e => e.product.totalCost - aeCost).filter(s => s > 0);
+    const savings = currentFiltered.map(e => Math.round((e.product.totalCost - aeCost) * VAT)).filter(s => s > 0);
     if (savings.length > 1) {
       const minS = Math.round(Math.min(...savings));
       const maxS = Math.round(Math.max(...savings));
