@@ -1,0 +1,1595 @@
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    .ae-wp *, .ae-wp *::before, .ae-wp *::after { box-sizing: border-box; }
+
+    :root {
+      /* ── Altid Energi brand palette ── */
+      --navy:       #101D2F;   /* primær mørk */
+      --blue:       #033B8C;   /* brand blå */
+      --blue-cta:   #1F6AFF;   /* CTA-knapper */
+      --teal:       #73D0E7;   /* turkis accent */
+      --teal-light: #E8F7FB;   /* meget lys turkis */
+      --yellow:     #FFD15C;   /* besparelse / highlight */
+      --yellow-light:#FFF6D9;  /* lys gul baggrund */
+
+      /* ── Neutrale toner ── */
+      --bg:         #F4F6FA;   /* side-baggrund */
+      --bg-subtle:  #E6EBF3;   /* kort-baggrund */
+      --border:     #D0D8E8;
+      --border-mid: #B0BECC;
+      --text-muted: #5A6A80;
+      --text-base:  #1C2B3A;
+      --text-dark:  #101D2F;
+
+      --radius:     14px;
+      --shadow:     0 1px 3px rgba(16,29,47,.07), 0 4px 16px rgba(16,29,47,.06);
+      --shadow-lg:  0 4px 8px rgba(16,29,47,.1), 0 12px 40px rgba(16,29,47,.14);
+    }
+
+    .ae-wp {
+      font-family: "Onest", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text-base);
+      line-height: 1.6;
+    }
+
+    /* ── Wrapper ──────────────────────────────────────────────── */
+    .calculator {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* ── Hero ─────────────────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: var(--teal-light);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-size: clamp(24px, 5vw, 38px);
+      font-weight: 800;
+      color: var(--text-dark);
+      line-height: 1.2;
+      margin-bottom: 14px;
+    }
+    .hero h1 span { color: var(--blue-cta); }
+    .hero p {
+      font-size: 17px;
+      color: var(--text-muted);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* ── Card ─────────────────────────────────────────────────── */
+    .card {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 36px;
+    }
+
+    /* ── Form ─────────────────────────────────────────────────── */
+    .field { margin-bottom: 28px; }
+    .field:last-child { margin-bottom: 0; }
+
+    .ae-wp label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 10px;
+    }
+    .ae-wp label small {
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-left: 6px;
+    }
+
+    /* ── Kender-du-dit-forbrug toggle ────────────────────────── */
+    .know-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .know-option input[type="radio"] { display: none; }
+    .know-inner {
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+    .know-inner:hover { border-color: var(--teal); background: var(--teal-light); }
+    .know-option input[type="radio"]:checked + .know-inner {
+      border-color: var(--blue-cta);
+      background: var(--teal-light);
+    }
+    .know-title { font-size: 14px; font-weight: 700; color: var(--text-dark); }
+    .know-sub   { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+
+    /* ── Slider (manuel) ──────────────────────────────────────── */
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .ae-wp input[type="range"] {
+      flex: 1;
+      -webkit-appearance: none;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--border);
+      outline: none;
+      cursor: pointer;
+    }
+    .ae-wp input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--blue-cta);
+      border: 3px solid #fff;
+      box-shadow: 0 0 0 2px var(--blue-cta), 0 2px 6px rgba(31,106,255,.3);
+      cursor: pointer;
+      transition: transform .15s;
+    }
+    .ae-wp input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
+    .kwh-display {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      min-width: 128px;
+    }
+    .kwh-display input {
+      width: 68px;
+      border: none;
+      background: transparent;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-align: right;
+      outline: none;
+    }
+    .kwh-display span { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+
+    /* Smooth show/hide */
+    .mode-section {
+      overflow: hidden;
+      transition: max-height .3s ease, opacity .3s ease, margin-top .3s ease;
+      max-height: 600px;
+      opacity: 1;
+      margin-top: 20px;
+    }
+    .mode-section.hidden {
+      max-height: 0 !important;
+      opacity: 0;
+      margin-top: 0;
+      pointer-events: none;
+    }
+
+    /* ── Boligkort ────────────────────────────────────────────── */
+    .housing-section { margin-bottom: 14px; }
+    .housing-section-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .housing-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .housing-card { display: contents; }
+    .housing-card input[type="radio"] { display: none; }
+    .housing-card .card-inner {
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 8px 10px;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      text-align: center;
+      user-select: none;
+    }
+    .housing-card .card-inner:hover { border-color: var(--teal); background: var(--teal-light); }
+    .housing-card input[type="radio"]:checked + .card-inner {
+      border-color: var(--blue-cta);
+      background: var(--teal-light);
+    }
+    .card-icon { font-size: 22px; line-height: 1; margin-bottom: 6px; }
+    .card-title { font-size: 12px; font-weight: 700; color: var(--text-dark); }
+    .card-kwh { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+    /* ── Elbil toggle ─────────────────────────────────────────── */
+    .ev-label { cursor: pointer; margin: 0; }
+    .ev-box {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      transition: border-color .15s, background .15s;
+    }
+    .ev-label input[type="checkbox"] { display: none; }
+    .ev-label input[type="checkbox"]:checked ~ .ev-box,
+    .ev-box.checked {
+      border-color: var(--blue-cta);
+      background: var(--teal-light);
+    }
+    .ev-icon { font-size: 24px; flex-shrink: 0; }
+    .ev-text { flex: 1; }
+    .ev-title { font-size: 14px; font-weight: 700; color: var(--text-dark); }
+    .ev-sub   { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .ev-toggle-dot {
+      width: 40px; height: 22px;
+      background: var(--border);
+      border-radius: 11px;
+      flex-shrink: 0;
+      position: relative;
+      transition: background .2s;
+    }
+    .ev-toggle-dot::after {
+      content: "";
+      position: absolute;
+      left: 3px; top: 3px;
+      width: 16px; height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform .2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    }
+    .ev-label input[type="checkbox"]:checked ~ .ev-box .ev-toggle-dot {
+      background: var(--blue-cta);
+    }
+    .ev-label input[type="checkbox"]:checked ~ .ev-box .ev-toggle-dot::after {
+      transform: translateX(18px);
+    }
+
+    /* ── Forbrug estimat ──────────────────────────────────────── */
+    .consumption-estimate {
+      background: var(--bg-subtle);
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .consumption-estimate strong {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-dark);
+    }
+
+    /* Region toggle */
+    .region-toggle {
+      display: flex;
+      gap: 10px;
+    }
+    .region-toggle input[type="radio"] { display: none; }
+    .region-toggle label {
+      flex: 1;
+      margin: 0;
+      padding: 10px 16px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all .15s;
+      user-select: none;
+    }
+    .region-toggle input[type="radio"]:checked + label {
+      border-color: var(--blue-cta);
+      background: var(--teal-light);
+      color: var(--blue);
+    }
+
+    /* Select */
+    .ae-wp select {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      color: var(--text-base);
+      background: #fff;
+      outline: none;
+      cursor: pointer;
+      transition: border-color .15s;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235A6A80' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+    }
+    .ae-wp select:focus { border-color: var(--blue-cta); }
+    .ae-wp select:disabled { opacity: .5; cursor: default; }
+
+    /* Button */
+    .btn-calc {
+      width: 100%;
+      padding: 16px;
+      background: var(--blue-cta);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s, transform .1s;
+      margin-top: 8px;
+    }
+    .btn-calc:hover  { background: var(--blue); }
+    .btn-calc:active { transform: scale(.99); }
+    .btn-calc:disabled { opacity: .6; cursor: default; transform: none; }
+
+    /* ── Loading ──────────────────────────────────────────────── */
+    .loading-wrap {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .spinner {
+      width: 44px; height: 44px;
+      border: 4px solid var(--border);
+      border-top-color: var(--blue-cta);
+      border-radius: 50%;
+      animation: ae-spin .75s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes ae-spin { to { transform: rotate(360deg); } }
+    .loading-wrap p { color: var(--text-muted); font-size: 15px; }
+
+    /* ── Results ──────────────────────────────────────────────── */
+    #results { margin-top: 32px; }
+
+    /* Savings banner */
+    .savings-banner {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+      border-radius: var(--radius);
+      padding: 36px 40px;
+      color: #fff;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+    .savings-banner::after {
+      content: "";
+      position: absolute;
+      right: -30px; top: -30px;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: rgba(115,208,231,.12);
+    }
+    .savings-banner .label {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 8px;
+    }
+    .savings-banner .amount {
+      font-size: clamp(36px, 8vw, 56px);
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 10px;
+      color: var(--yellow);
+    }
+    .savings-banner .sub {
+      font-size: 15px;
+      opacity: .8;
+    }
+    .savings-banner .sub strong { opacity: 1; color: #fff; }
+
+    /* Altid Energi cost highlight */
+    .ae-cost {
+      background: var(--teal-light);
+      border: 2px solid var(--teal);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .ae-cost .left .name {
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ae-badge {
+      background: var(--blue-cta);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    .ae-cost .left .product-name { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+    .ae-cost .right { text-align: right; }
+    .ae-cost .right .price { font-size: 28px; font-weight: 800; color: var(--blue); }
+    .ae-cost .right .unit { font-size: 13px; color: var(--text-muted); }
+
+    /* Note box */
+    .note-box {
+      background: var(--yellow-light);
+      border: 1px solid #E8C84A;
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 13px;
+      color: #5A4200;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .note-box svg { flex-shrink: 0; margin-top: 1px; }
+
+    /* Comparison table */
+    .table-card {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .table-header {
+      padding: 18px 24px 14px;
+      border-bottom: 1px solid var(--bg-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .table-header h3 { font-size: 15px; font-weight: 700; color: var(--text-dark); }
+    .table-header small { font-size: 12px; color: var(--text-muted); }
+
+    .comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .comp-table th {
+      padding: 10px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--text-muted);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+    .comp-table th.num { text-align: right; }
+    .comp-table td { padding: 13px 16px; color: var(--text-base); border-bottom: 1px solid var(--bg-subtle); vertical-align: middle; }
+    .comp-table td.num { text-align: right; font-weight: 600; }
+    .comp-table tbody tr:last-child td { border-bottom: none; }
+    .comp-table tbody tr:hover { background: var(--bg); }
+
+    /* Altid Energi row highlight */
+    .comp-table tbody tr.is-ae { background: var(--teal-light); }
+    .comp-table tbody tr.is-ae:hover { background: #D4F1FA; }
+    .comp-table tbody tr.is-ae td { color: var(--text-dark); }
+    .comp-table tbody tr.is-ae td.num { color: var(--blue); }
+
+    /* Current provider row */
+    .comp-table tbody tr.is-current { background: #EEF3FF; }
+    .comp-table tbody tr.is-current td { color: var(--text-dark); }
+
+    .rank { font-size: 13px; font-weight: 700; color: var(--text-muted); width: 28px; }
+    .comp-name { font-weight: 600; }
+    .comp-product { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .surcharge-pill {
+      display: inline-block;
+      background: var(--bg-subtle);
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+    .surcharge-pill.zero { background: var(--teal-light); color: var(--blue); }
+
+    .diff-positive { color: #C0392B; font-weight: 700; }
+    .diff-zero { color: var(--blue); font-weight: 700; }
+
+    /* Company group header row */
+    .comp-table tbody tr.company-group-header td {
+      padding: 10px 16px 6px;
+      background: var(--bg);
+      border-top: 2px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .comp-table tbody tr.is-ae.company-group-header td    { background: var(--teal-light); border-color: #9ADFF0; }
+    .comp-table tbody tr.is-current.company-group-header td { background: #EEF3FF; border-color: #BFD0FF; }
+    .comp-table tbody tr.company-group-header:hover td { background: inherit; }
+
+    /* Product sub-rows (under a grouped company) */
+    .comp-table tbody tr.product-sub-row td { padding: 9px 16px; }
+    .comp-table tbody tr.product-sub-row td.comp-product-cell {
+      padding-left: 32px;
+      font-size: 13px;
+      color: var(--text-base);
+    }
+    .comp-table tbody tr.product-sub-row:last-of-type td { border-bottom: 2px solid var(--border); }
+
+    /* CTA */
+    .cta-card {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+      border-radius: var(--radius);
+      padding: 32px 36px;
+      text-align: center;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-lg);
+    }
+    .cta-card h3 { color: #fff; font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+    .cta-card p  { color: rgba(255,255,255,.75); font-size: 15px; margin-bottom: 24px; }
+
+    .cta-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .btn-cta {
+      display: block;
+      padding: 14px 20px;
+      background: var(--yellow);
+      color: var(--navy);
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .15s, transform .1s;
+      font-family: inherit;
+    }
+    .btn-cta:hover  { background: #F5C530; }
+    .btn-cta:active { transform: scale(.98); }
+    .btn-cta-outline {
+      display: block;
+      padding: 14px 20px;
+      background: transparent;
+      color: #fff;
+      border: 2px solid rgba(255,255,255,.4);
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color .15s, background .15s;
+      font-family: inherit;
+    }
+    .btn-cta-outline:hover { border-color: #fff; background: rgba(255,255,255,.08); }
+
+    /* Callback form */
+    .callback-form {
+      max-width: 520px;
+      margin: 24px auto 0;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: left;
+    }
+    .callback-form h4 {
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .callback-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .callback-form input[type="text"],
+    .callback-form input[type="tel"] {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 8px;
+      background: rgba(255,255,255,.1);
+      color: #fff;
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .callback-form input::placeholder { color: rgba(255,255,255,.45); }
+    .callback-form input:focus { border-color: var(--teal); }
+    .btn-callback-submit {
+      width: 100%;
+      padding: 13px;
+      background: var(--yellow);
+      color: var(--navy);
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background .15s;
+      margin-top: 4px;
+    }
+    .btn-callback-submit:hover { background: #F5C530; }
+    .callback-success {
+      text-align: center;
+      padding: 16px 0 4px;
+      color: var(--teal);
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    /* Reset button */
+    .btn-reset {
+      display: block;
+      margin: 16px auto 0;
+      padding: 10px 24px;
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .btn-reset:hover { border-color: var(--border-mid); color: var(--text-base); }
+
+    /* Attribution */
+    .attribution {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 20px;
+    }
+    .attribution a { color: var(--text-muted); text-decoration: underline; }
+    .attribution a:hover { color: var(--text-base); }
+
+    /* Error */
+    .error-box {
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      border-radius: 10px;
+      padding: 20px 24px;
+      text-align: center;
+      color: #991B1B;
+      font-size: 14px;
+    }
+    .error-box strong { display: block; margin-bottom: 6px; font-size: 16px; }
+
+    /* ── Sticky bottom bar ────────────────────────────────────── */
+    .sticky-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--navy);
+      border-top: 1px solid rgba(255,255,255,.1);
+      padding: 14px 24px;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 -4px 24px rgba(16,29,47,.25);
+      transform: translateY(100%);
+      transition: transform .35s cubic-bezier(.4,0,.2,1);
+    }
+    .sticky-bar.visible { transform: translateY(0); }
+    .sticky-bar-text {
+      flex: 1;
+      min-width: 0;
+    }
+    .sticky-bar-text strong {
+      display: block;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .sticky-bar-text span {
+      font-size: 12px;
+      color: var(--teal);
+      font-weight: 500;
+    }
+    .sticky-bar-actions {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .sticky-btn-primary {
+      padding: 10px 20px;
+      background: var(--yellow);
+      color: var(--navy);
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: none;
+      font-family: inherit;
+      white-space: nowrap;
+      transition: background .15s;
+    }
+    .sticky-btn-primary:hover { background: #F5C530; }
+    .sticky-btn-secondary {
+      padding: 10px 20px;
+      background: transparent;
+      color: #fff;
+      border: 2px solid rgba(255,255,255,.35);
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+      transition: border-color .15s, background .15s;
+    }
+    .sticky-btn-secondary:hover { border-color: #fff; background: rgba(255,255,255,.08); }
+    .sticky-dismiss {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,.4);
+      cursor: pointer;
+      padding: 4px;
+      font-size: 18px;
+      line-height: 1;
+      flex-shrink: 0;
+      transition: color .15s;
+    }
+    .sticky-dismiss:hover { color: rgba(255,255,255,.8); }
+
+    /* Sticky callback mini-form */
+    .sticky-callback {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--navy);
+      border-top: 1px solid rgba(255,255,255,.1);
+      padding: 20px 24px;
+      z-index: 201;
+      box-shadow: 0 -4px 24px rgba(16,29,47,.3);
+      transform: translateY(100%);
+      transition: transform .35s cubic-bezier(.4,0,.2,1);
+    }
+    .sticky-callback.visible { transform: translateY(0); }
+    .sticky-callback h4 {
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .sticky-callback-row {
+      display: flex;
+      gap: 10px;
+    }
+    .sticky-callback input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 8px;
+      background: rgba(255,255,255,.08);
+      color: #fff;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .15s;
+      min-width: 0;
+    }
+    .sticky-callback input::placeholder { color: rgba(255,255,255,.4); }
+    .sticky-callback input:focus { border-color: var(--teal); }
+    .sticky-callback-submit {
+      padding: 10px 20px;
+      background: var(--yellow);
+      color: var(--navy);
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background .15s;
+    }
+    .sticky-callback-submit:hover { background: #F5C530; }
+
+    @media (max-width: 580px) {
+      .sticky-bar { padding: 12px 16px; }
+      .sticky-btn-secondary { display: none; }
+      .sticky-callback-row { flex-direction: column; }
+      .sticky-callback-submit { width: 100%; }
+    }
+
+    /* Utility */
+    .ae-wp .hidden { display: none !important; }
+
+    @media (max-width: 580px) {
+      .calculator { padding: 28px 16px 60px; }
+      .card { padding: 24px 20px; }
+      .savings-banner { padding: 28px 24px; }
+      .cta-card { padding: 28px 20px; }
+      .cta-buttons { grid-template-columns: 1fr; }
+      .callback-row { grid-template-columns: 1fr; }
+      .ae-cost { flex-direction: column; }
+      .ae-cost .right { text-align: left; }
+      .comp-table th:nth-child(3),
+      .comp-table td:nth-child(3) { display: none; }
+    }
+  </style>
+
+<div class="ae-wp">
+<div class="calculator">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge">Gratis beregner</div>
+    <h1>Se hvor meget du kan spare<br>ved at skifte til <span>Altid Energi</span></h1>
+    <p>Angiv dit elforbrug og se hvad du betaler hos dit nuværende selskab – versus hvad du ville betale hos os.</p>
+  </div>
+
+  <!-- Input card -->
+  <div class="card" id="inputCard">
+
+    <div class="field">
+      <label>Kender du dit årlige elforbrug?</label>
+      <div class="know-toggle">
+        <label class="know-option">
+          <input type="radio" name="knowConsumption" value="yes" />
+          <div class="know-inner">
+            <div class="know-title">Ja, jeg kender det</div>
+            <div class="know-sub">Jeg angiver kWh selv</div>
+          </div>
+        </label>
+        <label class="know-option">
+          <input type="radio" name="knowConsumption" value="no" checked />
+          <div class="know-inner">
+            <div class="know-title">Nej, hjælp mig</div>
+            <div class="know-sub">Jeg vælger boligtype</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Manuel kWh -->
+    <div class="field mode-section hidden" id="manualSection">
+      <label for="consumptionSlider">Dit årlige elforbrug</label>
+      <div class="slider-row">
+        <input type="range" id="consumptionSlider" min="500" max="20000" step="100" value="3500" />
+        <div class="kwh-display">
+          <input type="number" id="consumptionNumber" value="3500" min="500" max="20000" step="100" />
+          <span>kWh/år</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estimat via boligtype -->
+    <div class="mode-section" id="estimateSection">
+      <div class="field" style="margin-bottom:0">
+      <label>Din bolig</label>
+
+      <div class="housing-section">
+        <div class="housing-section-label">Lejlighed</div>
+        <div class="housing-cards">
+          <label class="housing-card">
+            <input type="radio" name="housing" value="1600" />
+            <div class="card-inner">
+              <div class="card-icon">🏢</div>
+              <div class="card-title">Op til 60 m²</div>
+              <div class="card-kwh">ca. 1.600 kWh/år</div>
+            </div>
+          </label>
+          <label class="housing-card">
+            <input type="radio" name="housing" value="2500" checked />
+            <div class="card-inner">
+              <div class="card-icon">🏢</div>
+              <div class="card-title">60–100 m²</div>
+              <div class="card-kwh">ca. 2.500 kWh/år</div>
+            </div>
+          </label>
+          <label class="housing-card">
+            <input type="radio" name="housing" value="3500" />
+            <div class="card-inner">
+              <div class="card-icon">🏢</div>
+              <div class="card-title">Over 100 m²</div>
+              <div class="card-kwh">ca. 3.500 kWh/år</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="housing-section">
+        <div class="housing-section-label">Hus / villa</div>
+        <div class="housing-cards">
+          <label class="housing-card">
+            <input type="radio" name="housing" value="3500" />
+            <div class="card-inner">
+              <div class="card-icon">🏠</div>
+              <div class="card-title">Op til 100 m²</div>
+              <div class="card-kwh">ca. 3.500 kWh/år</div>
+            </div>
+          </label>
+          <label class="housing-card">
+            <input type="radio" name="housing" value="5000" />
+            <div class="card-inner">
+              <div class="card-icon">🏠</div>
+              <div class="card-title">100–150 m²</div>
+              <div class="card-kwh">ca. 5.000 kWh/år</div>
+            </div>
+          </label>
+          <label class="housing-card">
+            <input type="radio" name="housing" value="7500" />
+            <div class="card-inner">
+              <div class="card-icon">🏠</div>
+              <div class="card-title">Over 150 m²</div>
+              <div class="card-kwh">ca. 7.500 kWh/år</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <label class="ev-label">
+        <input type="checkbox" id="evToggle" />
+        <div class="ev-box">
+          <div class="ev-icon">🚗</div>
+          <div class="ev-text">
+            <div class="ev-title">Jeg har en elbil</div>
+            <div class="ev-sub">Tilføjer ca. 2.500 kWh/år til dit estimat</div>
+          </div>
+          <div class="ev-toggle-dot"></div>
+        </div>
+      </label>
+
+      <div class="consumption-estimate">
+        <span>Estimeret årsforbrug</span>
+        <strong id="consumptionDisplay">2.500 kWh</strong>
+      </div>
+      </div><!-- /field -->
+    </div><!-- /estimateSection -->
+
+    <div class="field">
+      <label>Region <small>Bruges til at finde den rigtige nettarif</small></label>
+      <div class="region-toggle">
+        <input type="radio" name="region" id="dk1" value="DK1" checked />
+        <label for="dk1">DK1 &nbsp;·&nbsp; Jylland & Fyn</label>
+        <input type="radio" name="region" id="dk2" value="DK2" />
+        <label for="dk2">DK2 &nbsp;·&nbsp; Sjælland & øer</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="providerSelect">Dit nuværende elselskab <small>valgfrit</small></label>
+      <select id="providerSelect" disabled>
+        <option value="">Indlæser selskaber…</option>
+      </select>
+    </div>
+
+    <button class="btn-calc" id="calcBtn" disabled>Beregn min besparelse</button>
+  </div>
+
+  <!-- Results -->
+  <div id="results" class="hidden"></div>
+
+</div>
+
+</div><!-- /.ae-wp -->
+
+<!-- Sticky bottom bar -->
+<div class="sticky-bar" id="stickyBar">
+  <div class="sticky-bar-text">
+    <strong id="stickyHeadline">Skift til Altid Energi</strong>
+    <span>Danmarks eneste gebyrfri elselskab</span>
+  </div>
+  <div class="sticky-bar-actions">
+    <a class="sticky-btn-primary" href="https://altidenergi.dk" target="_blank" rel="noopener">Skift nu</a>
+    <button class="sticky-btn-secondary" id="stickyCallbackBtn">Bliv ringet op</button>
+  </div>
+  <button class="sticky-dismiss" id="stickyDismiss" title="Luk">✕</button>
+</div>
+
+<!-- Sticky callback mini-form -->
+<div class="sticky-callback" id="stickyCallback">
+  <h4>
+    Vi ringer dig op
+    <button class="sticky-dismiss" id="stickyCallbackClose">✕</button>
+  </h4>
+  <div class="sticky-callback-row">
+    <input type="text" id="scbName"  placeholder="Dit navn" />
+    <input type="tel"  id="scbPhone" placeholder="Telefonnummer" />
+    <button class="sticky-callback-submit" id="scbSubmit">Send</button>
+  </div>
+</div>
+
+<script>
+(function() {
+/* ── Config ──────────────────────────────────────────────────── */
+const API       = "https://stromligning.dk/api";
+const AE_SLUG   = "altid-energi";
+const CACHE_TTL = 5 * 60 * 1000; // 5 min
+
+/* ── State ───────────────────────────────────────────────────── */
+let companiesCache = {}; // key: "DK1_5000" → { data, ts }
+
+/* ── DOM ─────────────────────────────────────────────────────── */
+const provSelect         = document.getElementById("providerSelect");
+const calcBtn            = document.getElementById("calcBtn");
+const resultsEl          = document.getElementById("results");
+const evToggle           = document.getElementById("evToggle");
+const consumptionDisplay = document.getElementById("consumptionDisplay");
+const manualSection      = document.getElementById("manualSection");
+const estimateSection    = document.getElementById("estimateSection");
+const slider             = document.getElementById("consumptionSlider");
+const numInput           = document.getElementById("consumptionNumber");
+
+const EV_KWH = 2500;
+
+/* ── Vis/skjul mode-sektioner ────────────────────────────────── */
+function updateMode() {
+  const knowsIt = document.querySelector("input[name='knowConsumption']:checked").value === "yes";
+  manualSection.classList.toggle("hidden", !knowsIt);
+  estimateSection.classList.toggle("hidden", knowsIt);
+  updateDisplay();
+}
+
+document.querySelectorAll("input[name='knowConsumption']").forEach(r => {
+  r.addEventListener("change", updateMode);
+});
+
+/* ── Læs valgt forbrug ───────────────────────────────────────── */
+function getConsumption() {
+  const knowsIt = document.querySelector("input[name='knowConsumption']:checked").value === "yes";
+  if (knowsIt) {
+    return Number(slider.value) || 3500;
+  }
+  const selected = document.querySelector("input[name='housing']:checked");
+  const base = selected ? Number(selected.value) : 2500;
+  return base + (evToggle.checked ? EV_KWH : 0);
+}
+
+/* ── Opdater estimat-display ─────────────────────────────────── */
+function updateDisplay() {
+  consumptionDisplay.textContent = fmtNum(getConsumption()) + " kWh";
+}
+
+/* Slider ↔ tal-input sync */
+slider.addEventListener("input", () => {
+  numInput.value = slider.value;
+  updateDisplay();
+});
+numInput.addEventListener("change", () => {
+  let v = Math.max(500, Math.min(20000, Number(numInput.value) || 3500));
+  v = Math.round(v / 100) * 100;
+  numInput.value = v;
+  slider.value   = v;
+  updateDisplay();
+});
+
+document.querySelectorAll("input[name='housing']").forEach(r => {
+  r.addEventListener("change", updateDisplay);
+});
+evToggle.addEventListener("change", updateDisplay);
+
+/* ── Region change → reload providers ───────────────────────── */
+document.querySelectorAll("input[name='region']").forEach(r => {
+  r.addEventListener("change", loadProviders);
+});
+
+/* ── Calculate button ────────────────────────────────────────── */
+calcBtn.addEventListener("click", calculate);
+
+/* ── Fetch companies (with cache) ────────────────────────────── */
+async function fetchCompanies(consumption, region) {
+  const key = `${region}_${consumption}`;
+  const hit = companiesCache[key];
+  if (hit && Date.now() - hit.ts < CACHE_TTL) return hit.data;
+
+  const url = `${API}/companies?yearlyConsumption=${consumption}&region=${region}&periodMonths=12`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`API svarede med ${res.status}. Prøv igen om lidt.`);
+  const data = await res.json();
+  companiesCache[key] = { data, ts: Date.now() };
+  return data;
+}
+
+/* ── Load provider dropdown ──────────────────────────────────── */
+async function loadProviders() {
+  provSelect.disabled = true;
+  calcBtn.disabled    = true;
+  provSelect.innerHTML = "<option value=''>Indlæser selskaber…</option>";
+
+  try {
+    const consumption = getConsumption();
+    const region      = document.querySelector("input[name='region']:checked").value;
+    const companies   = await fetchCompanies(consumption, region);
+
+    // Build flat list: one entry per company (cheapest variable product)
+    const list = [];
+    companies.forEach(c => {
+      if (c.slug === AE_SLUG) return; // skip self
+      const products = (c.products || []).filter(p =>
+        !p.excludeInComparison && p.totalCost != null
+      );
+      if (!products.length) return;
+      const best = products.reduce((a, b) => a.totalCost < b.totalCost ? a : b);
+      list.push({ companyName: c.name, slug: c.slug, product: best });
+    });
+
+    list.sort((a, b) => a.companyName.localeCompare(b.companyName, "da"));
+
+    provSelect.innerHTML = "<option value=''>Vælg selskab (valgfrit)…</option>";
+    list.forEach(({ companyName, slug, product }) => {
+      const opt = document.createElement("option");
+      opt.value = slug;
+      opt.dataset.cost = product.totalCost;
+      opt.dataset.productName = product.name;
+      opt.textContent = companyName;
+      provSelect.appendChild(opt);
+    });
+
+    provSelect.disabled = false;
+    calcBtn.disabled    = false;
+  } catch (err) {
+    provSelect.innerHTML = "<option value=''>Kunne ikke hente selskaber</option>";
+    calcBtn.disabled = false; // allow retry
+    console.error(err);
+  }
+}
+
+/* ── Main calculate function ─────────────────────────────────── */
+async function calculate() {
+  resultsEl.classList.remove("hidden");
+  resultsEl.innerHTML = `<div class="loading-wrap">
+    <div class="spinner"></div>
+    <p>Henter aktuelle priser…</p>
+  </div>`;
+  calcBtn.disabled = true;
+
+  try {
+    const consumption = getConsumption();
+    const region      = document.querySelector("input[name='region']:checked").value;
+    const companies   = await fetchCompanies(consumption, region);
+
+    // Find Altid Energi
+    const aeCompany = companies.find(c => c.slug === AE_SLUG);
+    if (!aeCompany) throw new Error("Altid Energi ikke fundet i Strømligning-data.");
+
+    // Pick best AE product (exclude EV-only product)
+    const aeProducts = (aeCompany.products || []).filter(p =>
+      !p.excludeInComparison && p.totalCost != null
+    );
+    if (!aeProducts.length) throw new Error("Ingen sammenlignelige produkter fundet for Altid Energi.");
+    const aeBest = aeProducts.reduce((a, b) => a.totalCost < b.totalCost ? a : b);
+
+    // Alle produkter fra alle selskaber – én entry per produkt
+    const competitors = [];
+    companies.forEach(c => {
+      const products = (c.products || []).filter(p =>
+        !p.excludeInComparison && p.totalCost != null
+      );
+      products.forEach(product => {
+        competitors.push({ company: c, product });
+      });
+    });
+    competitors.sort((a, b) => a.product.totalCost - b.product.totalCost);
+
+    // Nuværende selskab (alle dets produkter)
+    const selectedSlug = provSelect.value;
+    const currentSlug  = selectedSlug || null;
+    // Billigste produkt fra nuværende selskab – bruges til besparelses-banneret
+    const currentFiltered = currentSlug
+      ? competitors.filter(e => e.company.slug === currentSlug)
+      : [];
+    const currentCheapest = currentFiltered.length
+      ? currentFiltered.reduce((a, b) => a.product.totalCost < b.product.totalCost ? a : b)
+      : null;
+
+    renderResults({ consumption, region, aeBest, aeCompany, competitors, currentSlug, currentCheapest });
+
+  } catch (err) {
+    resultsEl.innerHTML = `<div class="error-box">
+      <strong>Noget gik galt</strong>
+      ${escHtml(err.message || "Prøv venligst igen.")}
+    </div>`;
+  } finally {
+    calcBtn.disabled = false;
+  }
+}
+
+/* ── Render results ──────────────────────────────────────────── */
+function renderResults({ consumption, region, aeBest, aeCompany, competitors, currentSlug, currentCheapest }) {
+  const aeCost = aeBest.totalCost;
+
+  // Antal produkter (ekskl. AE) der er dyrere end AE
+  const totalOthers  = competitors.filter(e => e.company.slug !== AE_SLUG).length;
+  const cheaperCount = competitors.filter(e =>
+    e.company.slug !== AE_SLUG && e.product.totalCost < aeCost
+  ).length;
+  const pricierCount = totalOthers - cheaperCount;
+
+  let html = "";
+
+  // ── Besparelsesbanners ────────────────────────────────────────
+  if (currentCheapest) {
+    const saving = currentCheapest.product.totalCost - aeCost;
+
+    if (saving > 0) {
+      html += `
+      <div class="savings-banner">
+        <div class="label">Din potentielle besparelse</div>
+        <div class="amount">${fmtDKK(saving)} kr.</div>
+        <div class="sub">om året ved at skifte fra <strong>${escHtml(currentCheapest.company.name)}</strong> til Altid Energi</div>
+      </div>`;
+    } else {
+      const diff = Math.abs(saving);
+      html += `
+      <div class="savings-banner" style="background:linear-gradient(135deg,#0D1F3C 0%,#122645 100%)">
+        <div class="label">Ærlig vurdering</div>
+        <div class="amount" style="font-size:clamp(18px,4vw,28px); margin-bottom:12px">
+          ${escHtml(currentCheapest.company.name)} er ${diff > 0 ? fmtDKK(diff) + " kr./år billigere" : "på samme pris"} for dit forbrug
+        </div>
+        <div class="sub">
+          Hos Altid Energi betaler du til gengæld <strong>0 øre/kWh i spotpristillæg</strong>,
+          ingen binding og ingen gebyrer – og du er altid sikret indkøbsprisen på strøm.
+        </div>
+      </div>`;
+    }
+  } else {
+    // Ingen provider valgt → vis generel stat
+    html += `
+    <div class="savings-banner">
+      <div class="label">Altid Energi vs. markedet</div>
+      <div class="amount">${pricierCount} ud af ${totalOthers}</div>
+      <div class="sub">elselskaber opkræver <strong>mere end Altid Energi</strong> for ${fmtNum(consumption)} kWh/år</div>
+    </div>`;
+  }
+
+  // ── Altid Energi cost box ────────────────────────────────────
+  html += `
+  <div class="ae-cost">
+    <div class="left">
+      <div class="name">Altid Energi <span class="ae-badge">Dit nye selskab</span></div>
+      <div class="product-name">${escHtml(aeBest.name)} &nbsp;·&nbsp; 0 øre/kWh tillæg &nbsp;·&nbsp; ingen binding</div>
+    </div>
+    <div class="right">
+      <div class="price">${fmtDKK(aeCost)} kr.</div>
+      <div class="unit">om året (tillæg + abonnement)</div>
+    </div>
+  </div>`;
+
+  // ── Info note ────────────────────────────────────────────────
+  html += `
+  <div class="note-box">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A6A00" stroke-width="2" stroke-linecap="round">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <span>
+      Sammenligningen viser hvad hvert selskab opkræver <strong>oven på spotprisen</strong>:
+      spotpristillæg + abonnement. Selve spotprisen fra elbørsen er ens for alle variable produkter.
+    </span>
+  </div>`;
+
+  // ── Sammenligningstabel ───────────────────────────────────────
+  // AE øverst, derefter nuværende selskabs ALLE produkter,
+  // derefter alle produkter dyrere end AE – sorteret dyreste øverst.
+  const aeRows      = competitors.filter(e => e.company.slug === AE_SLUG);
+  const currentRows = currentSlug
+    ? competitors.filter(e => e.company.slug === currentSlug)
+    : [];
+  const pricierRows = competitors
+    .filter(e =>
+      e.company.slug !== AE_SLUG &&
+      e.company.slug !== currentSlug &&
+      e.product.totalCost > aeCost
+    )
+    .sort((a, b) => b.product.totalCost - a.product.totalCost); // dyreste øverst
+
+  const tableRows = [
+    ...aeRows.map(e      => ({ entry: e, pinned: true  })),
+    ...currentRows.map(e => ({ entry: e, pinned: true  })),
+    ...pricierRows.map(e => ({ entry: e, pinned: false })),
+  ];
+
+  const currentCheaperProducts = currentRows.filter(e => e.product.totalCost < aeCost).length;
+  const hiddenCount = cheaperCount - currentCheaperProducts;
+
+  html += `
+  <div class="table-card">
+    <div class="table-header">
+      <h3>Hvad betaler andre?</h3>
+      <small>${fmtNum(consumption)} kWh/år &nbsp;·&nbsp; ${region}</small>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Selskab</th>
+            <th>Tillæg pr. kWh</th>
+            <th class="num">Abo./år</th>
+            <th class="num">Total/år</th>
+            <th class="num">Mere end Altid Energi</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+  // Group entries by company (preserving table order)
+  const groups = [];
+  const groupMap = {};
+  tableRows.forEach(({ entry, pinned }) => {
+    const slug = entry.company.slug;
+    if (!groupMap[slug]) {
+      groupMap[slug] = { company: entry.company, products: [], pinned };
+      groups.push(groupMap[slug]);
+    }
+    groupMap[slug].products.push(entry.product);
+  });
+
+  function makeDiffCell(diff, isAE) {
+    if (isAE)       return '<span class="diff-zero">Basis</span>';
+    if (diff < 0)   return `<span style="color:var(--slate-400);font-weight:600">${fmtDKK(diff)} kr.</span>`;
+    if (diff === 0) return '<span class="diff-zero">= 0</span>';
+    return `<span class="diff-positive">+${fmtDKK(diff)} kr.</span>`;
+  }
+  function makeSurchStr(product) {
+    const surcharge = product.consumptionSurcharge || 0;
+    return surcharge === 0
+      ? `<span class="surcharge-pill zero">0 øre</span>`
+      : `<span class="surcharge-pill">${fmtOere(surcharge)} øre</span>`;
+  }
+
+  let rank = 1;
+  groups.forEach(({ company, products }) => {
+    const isAE      = company.slug === AE_SLUG;
+    const isCurrent = currentSlug && company.slug === currentSlug;
+    const rowClass  = isAE ? "is-ae" : isCurrent ? "is-current" : "";
+    const compBadge = isAE
+      ? ` <span class="ae-badge" style="font-size:9px">Altid Energi</span>`
+      : isCurrent
+        ? ` <span style="font-size:10px;color:#2563eb;font-weight:700">← dit selskab</span>`
+        : "";
+
+    let rankCell;
+    if (isAE)           rankCell = "★";
+    else if (isCurrent) rankCell = "→";
+    else                rankCell = rank++;
+
+    if (products.length === 1) {
+      // Single row – existing design
+      const product = products[0];
+      const diff    = product.totalCost - aeCost;
+      const subCost = (product.subscriptionMonthly || 0) * 12;
+      html += `
+          <tr class="${rowClass}">
+            <td class="rank">${rankCell}</td>
+            <td>
+              <div class="comp-name">${escHtml(company.name)}${compBadge}</div>
+              <div class="comp-product">${escHtml(product.name)}</div>
+            </td>
+            <td>${makeSurchStr(product)}</td>
+            <td class="num">${fmtDKK(subCost)} kr.</td>
+            <td class="num">${fmtDKK(product.totalCost)} kr.</td>
+            <td class="num">${makeDiffCell(diff, isAE)}</td>
+          </tr>`;
+    } else {
+      // Multiple products – company header + sub-rows
+      html += `
+          <tr class="company-group-header ${rowClass}">
+            <td class="rank">${rankCell}</td>
+            <td colspan="5"><span class="comp-name">${escHtml(company.name)}${compBadge}</span></td>
+          </tr>`;
+      products.forEach(product => {
+        const diff    = product.totalCost - aeCost;
+        const subCost = (product.subscriptionMonthly || 0) * 12;
+        html += `
+          <tr class="product-sub-row ${rowClass}">
+            <td></td>
+            <td class="comp-product-cell">${escHtml(product.name)}</td>
+            <td>${makeSurchStr(product)}</td>
+            <td class="num">${fmtDKK(subCost)} kr.</td>
+            <td class="num">${fmtDKK(product.totalCost)} kr.</td>
+            <td class="num">${makeDiffCell(diff, isAE)}</td>
+          </tr>`;
+      });
+    }
+  });
+
+  html += `
+        </tbody>
+      </table>
+    </div>`;
+
+  if (hiddenCount > 0) {
+    html += `
+    <p style="padding:12px 20px;font-size:12px;color:var(--slate-400);border-top:1px solid var(--slate-100)">
+      + ${hiddenCount} ${hiddenCount === 1 ? "selskab er" : "selskaber er"} billigere end Altid Energi og vises ikke her.
+    </p>`;
+  }
+
+  html += `</div>`;
+
+  // ── CTA ───────────────────────────────────────────────────────
+  const currentSaving = currentCheapest ? currentCheapest.product.totalCost - aeCost : null;
+  const ctaHeadline = currentSaving > 0
+    ? `Spar ${fmtDKK(currentSaving)} kr. om året – skift i dag`
+    : "Skift til Altid Energi";
+  const ctaSub = currentSaving > 0
+    ? "Det tager under 2 minutter. Vi håndterer opsigelsen til dit nuværende selskab – og som Danmarks eneste gebyrfri elselskab betaler du aldrig mere end nødvendigt."
+    : "Det tager under 2 minutter. Danmarks eneste gebyrfri elselskab – 0 øre i spotpristillæg og ingen skjulte omkostninger.";
+
+  html += `
+  <div class="cta-card">
+    <h3>${ctaHeadline}</h3>
+    <p>${ctaSub}</p>
+    <div class="cta-buttons">
+      <a class="btn-cta" href="https://altidenergi.dk" target="_blank" rel="noopener">Skift nu – det tager 2 min.</a>
+      <button class="btn-cta-outline" id="callbackToggle">Bliv ringet op</button>
+    </div>
+    <div class="callback-form hidden" id="callbackForm">
+      <h4>Vi ringer dig op – hvornår passer det?</h4>
+      <div class="callback-row">
+        <input type="text" id="cbName"  placeholder="Dit navn" />
+        <input type="tel"  id="cbPhone" placeholder="Telefonnummer" />
+      </div>
+      <button class="btn-callback-submit" id="cbSubmit">Send – ring mig op</button>
+    </div>
+  </div>`;
+
+  // ── Reset + attribution ───────────────────────────────────────
+  html += `
+  <button class="btn-reset" id="resetBtn">Beregn igen</button>
+  <p class="attribution">
+    Data leveret af <a href="https://stromligning.dk" target="_blank" rel="noopener">Strømligning</a>
+  </p>`;
+
+  resultsEl.innerHTML = html;
+  resultsEl.classList.remove("hidden");
+  resultsEl.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    resultsEl.classList.add("hidden");
+    hideStickyBar();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  // Vis sticky bar med evt. besparelsesbeløb
+  showStickyBar(currentSaving > 0 ? currentSaving : 0);
+
+  // Callback toggle
+  document.getElementById("callbackToggle").addEventListener("click", () => {
+    const form = document.getElementById("callbackForm");
+    form.classList.toggle("hidden");
+    if (!form.classList.contains("hidden")) {
+      document.getElementById("cbName").focus();
+    }
+  });
+
+  // Callback submit
+  document.getElementById("cbSubmit").addEventListener("click", () => {
+    const name  = document.getElementById("cbName").value.trim();
+    const phone = document.getElementById("cbPhone").value.trim();
+    if (!name || !phone) {
+      document.getElementById("cbName").style.borderColor  = name  ? "" : "var(--yellow)";
+      document.getElementById("cbPhone").style.borderColor = phone ? "" : "var(--yellow)";
+      return;
+    }
+    // Åbn mailto – nem løsning uden backend
+    const subject = encodeURIComponent("Bliv ringet op – Besparelsesberegner");
+    const body    = encodeURIComponent(`Navn: ${name}\nTelefon: ${phone}\n\nForbrug: ${fmtNum(getConsumption())} kWh/år`);
+    window.location.href = `mailto:hej@altidenergi.dk?subject=${subject}&body=${body}`;
+
+    document.getElementById("callbackForm").innerHTML =
+      `<p class="callback-success">✓ Tak, ${escHtml(name)}! Vi ringer dig op hurtigst muligt.</p>`;
+  });
+}
+
+/* ── Formatters ──────────────────────────────────────────────── */
+function fmtDKK(n) {
+  return Number(n).toLocaleString("da-DK", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+function fmtNum(n) {
+  return Number(n).toLocaleString("da-DK");
+}
+function fmtOere(kr) {
+  // kr/kWh → øre/kWh
+  return (kr * 100).toLocaleString("da-DK", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+}
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+/* ── Sticky bar ──────────────────────────────────────────────── */
+const stickyBar      = document.getElementById("stickyBar");
+const stickyCallback = document.getElementById("stickyCallback");
+const stickyHeadline = document.getElementById("stickyHeadline");
+
+function showStickyBar(savingAmount) {
+  if (savingAmount > 0) {
+    stickyHeadline.textContent = `Spar ${fmtDKK(savingAmount)} kr./år – skift til Altid Energi`;
+  } else {
+    stickyHeadline.textContent = "Skift til Altid Energi";
+  }
+  stickyBar.classList.add("visible");
+}
+
+function hideStickyBar() {
+  stickyBar.classList.remove("visible");
+  stickyCallback.classList.remove("visible");
+}
+
+document.getElementById("stickyDismiss").addEventListener("click", hideStickyBar);
+
+document.getElementById("stickyCallbackBtn").addEventListener("click", () => {
+  stickyBar.classList.remove("visible");
+  stickyCallback.classList.add("visible");
+  document.getElementById("scbName").focus();
+});
+
+document.getElementById("stickyCallbackClose").addEventListener("click", () => {
+  stickyCallback.classList.remove("visible");
+  stickyBar.classList.add("visible");
+});
+
+document.getElementById("scbSubmit").addEventListener("click", () => {
+  const name  = document.getElementById("scbName").value.trim();
+  const phone = document.getElementById("scbPhone").value.trim();
+  document.getElementById("scbName").style.borderColor  = name  ? "" : "var(--yellow)";
+  document.getElementById("scbPhone").style.borderColor = phone ? "" : "var(--yellow)";
+  if (!name || !phone) return;
+
+  const subject = encodeURIComponent("Bliv ringet op – Besparelsesberegner");
+  const body    = encodeURIComponent(`Navn: ${name}\nTelefon: ${phone}\n\nForbrug: ${fmtNum(getConsumption())} kWh/år`);
+  window.location.href = `mailto:hej@altidenergi.dk?subject=${subject}&body=${body}`;
+
+  stickyCallback.innerHTML = `<p style="color:var(--teal);font-weight:700;font-size:15px;padding:4px 0">
+    ✓ Tak, ${escHtml(name)}! Vi ringer dig op hurtigst muligt.
+  </p>`;
+  setTimeout(hideStickyBar, 3000);
+});
+
+/* ── Init ────────────────────────────────────────────────────── */
+loadProviders();
+})(); // IIFE
+</script>
