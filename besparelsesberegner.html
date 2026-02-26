@@ -1422,7 +1422,7 @@ async function calculate() {
     }
 
     const selectedProductName = selectedProductOpt ? selectedProductOpt.dataset.productName : null;
-    renderResults({ consumption, region, aeBest, aeCompany, competitors, currentSlug, currentCheapest, selectedProductName });
+    renderResults({ consumption, region, aeBest, aeCompany, competitors, currentSlug, currentCheapest, currentFiltered, selectedProductName });
 
   } catch (err) {
     resultsEl.innerHTML = `<div class="error-box">
@@ -1435,7 +1435,7 @@ async function calculate() {
 }
 
 /* ── Render results ──────────────────────────────────────────── */
-function renderResults({ consumption, region, aeBest, aeCompany, competitors, currentSlug, currentCheapest, selectedProductName }) {
+function renderResults({ consumption, region, aeBest, aeCompany, competitors, currentSlug, currentCheapest, currentFiltered, selectedProductName }) {
   const aeCost = aeBest.totalCost;
 
   // Antal produkter (ekskl. AE) der er dyrere end AE
@@ -1713,8 +1713,19 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
     }
   });
 
-  // Vis sticky bar med evt. besparelsesbeløb
-  showStickyBar(currentSaving > 0 ? currentSaving : 0);
+  // Vis sticky bar – med range-tekst hvis ingen aftale er valgt
+  let stickyText = null;
+  if (currentSlug && !selectedProductName && currentFiltered && currentFiltered.length > 1) {
+    const savings = currentFiltered.map(e => e.product.totalCost - aeCost).filter(s => s > 0);
+    if (savings.length > 1) {
+      const minS = Math.round(Math.min(...savings));
+      const maxS = Math.round(Math.max(...savings));
+      if (maxS - minS > 50) {
+        stickyText = `Spar ${fmtDKK(minS)}–${fmtDKK(maxS)} kr./år – alt efter din aftale`;
+      }
+    }
+  }
+  showStickyBar(currentSaving > 0 ? currentSaving : 0, stickyText);
 
   // Callback toggle
   document.getElementById("callbackToggle").addEventListener("click", () => {
@@ -1766,10 +1777,10 @@ const stickyBar      = document.getElementById("stickyBar");
 const stickyCallback = document.getElementById("stickyCallback");
 const stickyHeadline = document.getElementById("stickyHeadline");
 
-function showStickyBar(savingAmount) {
-  const text = savingAmount > 0
+function showStickyBar(savingAmount, customText = null) {
+  const text = customText || (savingAmount > 0
     ? `Spar ${fmtDKK(savingAmount)} kr./år – skift til Altid Energi`
-    : "Skift til Altid Energi";
+    : "Skift til Altid Energi");
   if (inIframe) {
     window.parent.postMessage({ type: "ae-sticky-show", text }, "*");
   } else {
