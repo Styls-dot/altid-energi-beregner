@@ -272,6 +272,28 @@
       transform: translateX(18px);
     }
 
+    /* ── Elbil km-felt ────────────────────────────────────────── */
+    .ev-km-field {
+      margin-top: 10px;
+      padding: 14px 16px;
+      background: var(--teal-light);
+      border: 1px solid var(--blue-cta);
+      border-radius: 10px;
+    }
+    .ev-km-field label { font-size: 13px; font-weight: 600; color: var(--text-dark); display: block; margin-bottom: 8px; }
+    .ev-km-row { display: flex; align-items: center; gap: 10px; }
+    .ev-km-row input[type="number"] {
+      width: 120px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-dark);
+      background: #fff;
+    }
+    .ev-km-unit { font-size: 13px; color: var(--text-muted); }
+
     /* ── Forbrug estimat ──────────────────────────────────────── */
     .consumption-estimate {
       background: var(--bg-subtle);
@@ -504,7 +526,7 @@
     }
     .comp-table th.num { text-align: right; }
     .comp-table td { padding: 13px 16px; color: var(--text-base); border-bottom: 1px solid var(--bg-subtle); vertical-align: middle; }
-    .comp-table td.num { text-align: right; font-weight: 600; }
+    .comp-table td.num { text-align: right; font-weight: 600; white-space: nowrap; }
     .comp-table tbody tr:last-child td { border-bottom: none; }
     .comp-table tbody tr:hover { background: var(--bg); }
 
@@ -1014,11 +1036,19 @@
           <div class="ev-icon">🚗</div>
           <div class="ev-text">
             <div class="ev-title">Jeg har en elbil</div>
-            <div class="ev-sub">Tilføjer ca. 2.500 kWh/år til dit estimat</div>
+            <div class="ev-sub" id="evSub">Tilføjer ca. 2.500 kWh/år til dit estimat</div>
           </div>
           <div class="ev-toggle-dot"></div>
         </div>
       </label>
+
+      <div class="ev-km-field hidden" id="evKmField">
+        <label for="evKmInput">Hvor mange km kører du om året?</label>
+        <div class="ev-km-row">
+          <input type="number" id="evKmInput" min="1000" max="100000" step="1000" value="15000" />
+          <span class="ev-km-unit">km/år</span>
+        </div>
+      </div>
 
       <div class="consumption-estimate">
         <span>Estimeret årsforbrug</span>
@@ -1041,6 +1071,13 @@
       <label for="providerSelect">Dit nuværende elselskab <small>valgfrit</small></label>
       <select id="providerSelect" disabled>
         <option value="">Indlæser selskaber…</option>
+      </select>
+    </div>
+
+    <div class="field mode-section hidden" id="productField">
+      <label for="productSelect">Kender du din aftale? <small>valgfrit – giver mere præcist resultat</small></label>
+      <select id="productSelect">
+        <option value="">Vælg aftale…</option>
       </select>
     </div>
 
@@ -1097,8 +1134,13 @@ const manualSection      = document.getElementById("manualSection");
 const estimateSection    = document.getElementById("estimateSection");
 const slider             = document.getElementById("consumptionSlider");
 const numInput           = document.getElementById("consumptionNumber");
+const productSelect      = document.getElementById("productSelect");
+const productField       = document.getElementById("productField");
+const evKmField          = document.getElementById("evKmField");
+const evKmInput          = document.getElementById("evKmInput");
+const evSub              = document.getElementById("evSub");
 
-const EV_KWH = 2500;
+const EV_KWH_PER_KM = 0.2; // kWh per km
 
 /* ── Vis/skjul mode-sektioner ────────────────────────────────── */
 function updateMode() {
@@ -1120,11 +1162,21 @@ function getConsumption() {
   }
   const selected = document.querySelector("input[name='housing']:checked");
   const base = selected ? Number(selected.value) : 2500;
-  return base + (evToggle.checked ? EV_KWH : 0);
+  const evKm = evToggle.checked ? (Number(evKmInput.value) || 15000) : 0;
+  return base + Math.round(evKm * EV_KWH_PER_KM);
 }
 
 /* ── Opdater estimat-display ─────────────────────────────────── */
 function updateDisplay() {
+  const evOn = evToggle.checked;
+  evKmField.classList.toggle("hidden", !evOn);
+  if (evOn) {
+    const km = Number(evKmInput.value) || 15000;
+    const kwh = Math.round(km * EV_KWH_PER_KM);
+    evSub.textContent = `Tilføjer ca. ${fmtNum(kwh)} kWh/år til dit estimat`;
+  } else {
+    evSub.textContent = "Tilføjer ca. 3.000 kWh/år til dit estimat";
+  }
   consumptionDisplay.textContent = fmtNum(getConsumption()) + " kWh";
 }
 
@@ -1145,6 +1197,7 @@ document.querySelectorAll("input[name='housing']").forEach(r => {
   r.addEventListener("change", updateDisplay);
 });
 evToggle.addEventListener("change", updateDisplay);
+evKmInput.addEventListener("input", updateDisplay);
 
 /* ── Region change → reload providers ───────────────────────── */
 document.querySelectorAll("input[name='region']").forEach(r => {
@@ -1212,6 +1265,42 @@ async function loadProviders() {
   }
 }
 
+/* ── Opdater produkt-dropdown når selskab ændres ─────────────── */
+provSelect.addEventListener("change", async () => {
+  const slug = provSelect.value;
+  if (!slug) {
+    productField.classList.add("hidden");
+    productSelect.innerHTML = "<option value=''>Vælg aftale…</option>";
+    return;
+  }
+
+  const consumption = getConsumption();
+  const region      = document.querySelector("input[name='region']:checked").value;
+  const companies   = await fetchCompanies(consumption, region).catch(() => null);
+  if (!companies) return;
+
+  const company = companies.find(c => c.slug === slug);
+  if (!company) return;
+
+  const products = (company.products || []).filter(p =>
+    !p.excludeInComparison && p.totalCost != null
+  ).sort((a, b) => a.totalCost - b.totalCost);
+
+  productSelect.innerHTML = "<option value=''>Jeg kender ikke min aftale</option>";
+  products.forEach(p => {
+    const opt = document.createElement("option");
+    opt.value = p.id || p.name;
+    opt.dataset.totalCost = p.totalCost;
+    opt.dataset.productName = p.name;
+    opt.dataset.intro = p.introductoryOffer ? "1" : "";
+    const introTag = p.introductoryOffer ? " ⏱ Introtilbud" : "";
+    opt.textContent = `${p.name}${introTag}  –  ${fmtDKK(p.totalCost)} kr./år`;
+    productSelect.appendChild(opt);
+  });
+
+  productField.classList.remove("hidden");
+});
+
 /* ── Main calculate function ─────────────────────────────────── */
 async function calculate() {
   resultsEl.classList.remove("hidden");
@@ -1252,15 +1341,32 @@ async function calculate() {
     // Nuværende selskab (alle dets produkter)
     const selectedSlug = provSelect.value;
     const currentSlug  = selectedSlug || null;
-    // Billigste produkt fra nuværende selskab – bruges til besparelses-banneret
+
+    // Brug valgt produkt hvis brugeren har valgt et specifikt, ellers billigste
+    const selectedProductOpt = productSelect.value
+      ? productSelect.options[productSelect.selectedIndex]
+      : null;
+
     const currentFiltered = currentSlug
       ? competitors.filter(e => e.company.slug === currentSlug)
       : [];
-    const currentCheapest = currentFiltered.length
-      ? currentFiltered.reduce((a, b) => a.product.totalCost < b.product.totalCost ? a : b)
-      : null;
 
-    renderResults({ consumption, region, aeBest, aeCompany, competitors, currentSlug, currentCheapest });
+    let currentCheapest = null;
+    if (currentFiltered.length) {
+      if (selectedProductOpt) {
+        // Find det specifikke valgte produkt
+        const selectedName = selectedProductOpt.dataset.productName;
+        const match = currentFiltered.find(e => e.product.name === selectedName);
+        currentCheapest = match || currentFiltered.reduce((a, b) =>
+          a.product.totalCost < b.product.totalCost ? a : b);
+      } else {
+        currentCheapest = currentFiltered.reduce((a, b) =>
+          a.product.totalCost < b.product.totalCost ? a : b);
+      }
+    }
+
+    const selectedProductName = selectedProductOpt ? selectedProductOpt.dataset.productName : null;
+    renderResults({ consumption, region, aeBest, aeCompany, competitors, currentSlug, currentCheapest, selectedProductName });
 
   } catch (err) {
     resultsEl.innerHTML = `<div class="error-box">
@@ -1273,7 +1379,7 @@ async function calculate() {
 }
 
 /* ── Render results ──────────────────────────────────────────── */
-function renderResults({ consumption, region, aeBest, aeCompany, competitors, currentSlug, currentCheapest }) {
+function renderResults({ consumption, region, aeBest, aeCompany, competitors, currentSlug, currentCheapest, selectedProductName }) {
   const aeCost = aeBest.totalCost;
 
   // Antal produkter (ekskl. AE) der er dyrere end AE
@@ -1310,7 +1416,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
           ${escHtml(currentCheapest.company.name)} er ${diff > 0 ? fmtDKK(diff) + " kr./år billigere" : "på samme pris"} for dit forbrug
         </div>
         <div class="sub">
-          Hos Altid Energi betaler du til gengæld <strong>0 øre/kWh i spotpristillæg</strong>,
+          ${currentCheapest.product.introductoryOffer ? `<strong style="color:#FFD15C">⏱ Bemærk: dette er et introtilbud – prisen stiger efter introduktionsperioden.</strong><br><br>` : ""}Hos Altid Energi betaler du til gengæld <strong>0 øre/kWh i spotpristillæg</strong>,
           ingen binding og ingen gebyrer – og du er altid sikret indkøbsprisen på strøm.
         </div>
       </div>`;
@@ -1435,6 +1541,9 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
       : isCurrent
         ? ` <span style="font-size:10px;color:#2563eb;font-weight:700">← dit selskab</span>`
         : "";
+    const myProductBadge = isCurrent && selectedProductName
+      ? `<span style="font-size:10px;color:#2563eb;font-weight:700;margin-left:6px">← din aftale</span>`
+      : "";
 
     let rankCell;
     if (isAE)           rankCell = "★";
@@ -1451,7 +1560,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
             <td class="rank">${rankCell}</td>
             <td>
               <div class="comp-name">${escHtml(company.name)}${compBadge}</div>
-              <div class="comp-product">${escHtml(product.name)}${makeIntroPill(product)}</div>
+              <div class="comp-product">${escHtml(product.name)}${makeIntroPill(product)}${isCurrent && selectedProductName === product.name ? myProductBadge : ""}</div>
             </td>
             <td>${makeSurchStr(product)}</td>
             <td class="num">${fmtDKK(subCost)} kr.</td>
@@ -1471,7 +1580,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
         html += `
           <tr class="product-sub-row ${rowClass}">
             <td></td>
-            <td class="comp-product-cell">${escHtml(product.name)}${makeIntroPill(product)}</td>
+            <td class="comp-product-cell">${escHtml(product.name)}${makeIntroPill(product)}${isCurrent && selectedProductName === product.name ? myProductBadge : ""}</td>
             <td>${makeSurchStr(product)}</td>
             <td class="num">${fmtDKK(subCost)} kr.</td>
             <td class="num">${fmtDKK(product.totalCost)} kr.</td>
@@ -1536,6 +1645,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
   document.getElementById("resetBtn").addEventListener("click", () => {
     resultsEl.classList.add("hidden");
     hideStickyBar();
+    productSelect.value = "";
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
