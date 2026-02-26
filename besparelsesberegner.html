@@ -727,6 +727,24 @@
       font-size: 15px;
     }
 
+    /* Show others button */
+    .btn-show-others {
+      display: block;
+      width: 100%;
+      padding: 14px 20px;
+      background: var(--bg-subtle);
+      color: var(--blue);
+      border: none;
+      border-top: 1px solid var(--border);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+      text-align: center;
+    }
+    .btn-show-others:hover { background: var(--teal-light); }
+
     /* Reset button */
     .btn-reset {
       display: block;
@@ -1570,6 +1588,8 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
   const currentCheaperProducts = currentRows.filter(e => e.product.totalCost < aeCost).length;
   const hiddenCount = cheaperCount - currentCheaperProducts;
 
+  const hasPinned = currentSlug !== null;
+
   html += `
   <div class="table-card">
     <div class="table-header">
@@ -1588,7 +1608,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
             <th class="num">Mere end Altid Energi</th>
           </tr>
         </thead>
-        <tbody>`;
+        <tbody id="pinnedRows">`;
 
   // Group entries by company (preserving table order)
   const groups = [];
@@ -1620,8 +1640,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
       : "";
   }
 
-  let rank = 1;
-  groups.forEach(({ company, products }) => {
+  function renderGroup({ company, products }, rank) {
     const isAE      = company.slug === AE_SLUG;
     const isCurrent = currentSlug && company.slug === currentSlug;
     const rowClass  = isAE ? "is-ae" : isCurrent ? "is-current" : "";
@@ -1633,18 +1652,13 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
     const myProductBadge = isCurrent && selectedProductName
       ? `<span style="font-size:10px;color:#2563eb;font-weight:700;margin-left:6px">← din aftale</span>`
       : "";
-
-    let rankCell;
-    if (isAE)           rankCell = "★";
-    else if (isCurrent) rankCell = "→";
-    else                rankCell = rank++;
-
+    const rankCell = isAE ? "★" : isCurrent ? "→" : rank;
+    let out = "";
     if (products.length === 1) {
-      // Single row – existing design
       const product = products[0];
       const diff    = product.totalCost - aeCost;
       const subCost = (product.subscriptionMonthly || 0) * 12;
-      html += `
+      out += `
           <tr class="${rowClass}">
             <td class="rank">${rankCell}</td>
             <td>
@@ -1657,8 +1671,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
             <td class="num">${makeDiffCell(diff, isAE)}</td>
           </tr>`;
     } else {
-      // Multiple products – company header + sub-rows
-      html += `
+      out += `
           <tr class="company-group-header ${rowClass}">
             <td class="rank">${rankCell}</td>
             <td colspan="5"><span class="comp-name">${escHtml(company.name)}${compBadge}</span></td>
@@ -1666,7 +1679,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
       products.forEach(product => {
         const diff    = product.totalCost - aeCost;
         const subCost = (product.subscriptionMonthly || 0) * 12;
-        html += `
+        out += `
           <tr class="product-sub-row ${rowClass}">
             <td></td>
             <td class="comp-product-cell">${escHtml(product.name)}${makeIntroPill(product)}${isCurrent && selectedProductName === product.name ? myProductBadge : ""}</td>
@@ -1677,16 +1690,35 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
           </tr>`;
       });
     }
-  });
+    return out;
+  }
+
+  // Pinned groups (AE + current provider)
+  let otherRank = 1;
+  const pinnedGroups = groups.filter(g => g.pinned);
+  const otherGroups  = groups.filter(g => !g.pinned);
+
+  pinnedGroups.forEach(g => { html += renderGroup(g, otherRank); });
+
+  html += `</tbody><tbody id="otherRows" ${hasPinned ? 'class="hidden"' : ""}>`;
+  otherGroups.forEach(g => { html += renderGroup(g, otherRank++); });
 
   html += `
         </tbody>
       </table>
     </div>`;
 
+  // Toggle-knap (kun hvis der er andre selskaber og bruger har valgt sit eget)
+  if (hasPinned && otherGroups.length > 0) {
+    html += `
+    <button class="btn-show-others" id="btnShowOthers">
+      Vis alle ${otherGroups.length} andre selskaber ↓
+    </button>`;
+  }
+
   if (hiddenCount > 0) {
     html += `
-    <p style="padding:12px 20px;font-size:12px;color:var(--slate-400);border-top:1px solid var(--slate-100)">
+    <p style="padding:12px 20px;font-size:12px;color:var(--text-muted);border-top:1px solid var(--bg-subtle)">
       + ${hiddenCount} ${hiddenCount === 1 ? "selskab er" : "selskaber er"} billigere end Altid Energi og vises ikke her.
     </p>`;
   }
@@ -1759,6 +1791,18 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
     }
   }
   showStickyBar(currentSaving > 0 ? currentSaving : 0, stickyText);
+
+  // Show/hide others toggle
+  const btnShowOthers = document.getElementById("btnShowOthers");
+  if (btnShowOthers) {
+    btnShowOthers.addEventListener("click", () => {
+      const otherRowsEl = document.getElementById("otherRows");
+      const isNowHidden = otherRowsEl.classList.toggle("hidden");
+      btnShowOthers.textContent = isNowHidden
+        ? `Vis alle ${otherGroups.length} andre selskaber ↓`
+        : "Skjul andre selskaber ↑";
+    });
+  }
 
   // Callback toggle
   document.getElementById("callbackToggle").addEventListener("click", () => {
