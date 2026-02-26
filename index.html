@@ -1735,10 +1735,9 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
     }
   }
 
-  const ctaHeadline = currentSaving > 0
-    ? ctaSavingRange
-      ? `Spar ${fmtDKK(ctaSavingRange.minS)}–${fmtDKK(ctaSavingRange.maxS)} kr. om året – skift i dag`
-      : `Spar ${fmtDKK(currentSaving)} kr. om året – skift i dag`
+  const ctaSavingMin = ctaSavingRange ? ctaSavingRange.minS : currentSaving;
+  const ctaHeadline = ctaSavingMin > 0
+    ? `Spar minimum ${fmtDKK(ctaSavingMin)} kr. om året – skift i dag`
     : "Skift til Altid Energi";
   const ctaSub = currentSaving > 0
     ? "Det tager under 2 minutter. Vi håndterer opsigelsen til dit nuværende selskab – og som Danmarks eneste gebyrfri elselskab betaler du aldrig mere end nødvendigt."
@@ -1796,7 +1795,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
       const minS = Math.round(Math.min(...savings));
       const maxS = Math.round(Math.max(...savings));
       if (maxS - minS > 50) {
-        stickyText = `Skift og spar ${fmtDKK(minS)}–${fmtDKK(maxS)} kr./årligt`;
+        stickyText = `Skift og spar minimum ${fmtDKK(minS)} kr./årligt`;
       }
     }
   }
