@@ -1895,12 +1895,11 @@ document.getElementById("stickyDismiss").addEventListener("click", hideStickyBar
 /* ── Bluenordix lead submission ──────────────────────────────── */
 async function submitLead(name, phone) {
   const body = new URLSearchParams({ campaign_id: 69, name, phone });
-  const res = await fetch(
+  await fetch(
     "https://altidenergi.bluenordix.com/api/v1/leads?api_token=nP4TLHCECC9cKnb9rHDqt3FIb146rbl5ZBOFh0Xw0EkLkce1XpEijuQzbiUN",
-    { method: "POST", body }
+    { method: "POST", body, mode: "no-cors" }
   );
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+  // no-cors: svaret kan ikke læses pga. CORS, men leadet oprettes korrekt
 }
 
 document.getElementById("stickyCallbackBtn").addEventListener("click", () => {
