@@ -1407,7 +1407,7 @@ provSelect.addEventListener("change", async () => {
     opt.dataset.productName = p.name;
     opt.dataset.intro = p.introductoryOffer ? "1" : "";
     const introTag = p.introductoryOffer ? " ⏱ Introtilbud" : "";
-    opt.textContent = `${p.name}${introTag}  –  ${fmtDKK(p.totalCost)} kr./år`;
+    opt.textContent = `${p.name}${introTag}`;
     productSelect.appendChild(opt);
   });
 
