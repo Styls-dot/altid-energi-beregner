@@ -1723,8 +1723,22 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
 
   // ── CTA ───────────────────────────────────────────────────────
   const currentSaving = currentCheapest ? Math.round((currentCheapest.product.totalCost - aeCost) * VAT) : null;
+
+  // Beregn interval hvis ingen specifik aftale er valgt og der er flere produkter
+  let ctaSavingRange = null;
+  if (currentSlug && !selectedProductName && currentFiltered && currentFiltered.length > 1) {
+    const rangeSavings = currentFiltered.map(e => Math.round((e.product.totalCost - aeCost) * VAT)).filter(s => s > 0);
+    if (rangeSavings.length > 1) {
+      const minS = Math.min(...rangeSavings);
+      const maxS = Math.max(...rangeSavings);
+      if (maxS - minS > 50) ctaSavingRange = { minS, maxS };
+    }
+  }
+
   const ctaHeadline = currentSaving > 0
-    ? `Spar ${fmtDKK(currentSaving)} kr. om året – skift i dag`
+    ? ctaSavingRange
+      ? `Spar ${fmtDKK(ctaSavingRange.minS)}–${fmtDKK(ctaSavingRange.maxS)} kr. om året – skift i dag`
+      : `Spar ${fmtDKK(currentSaving)} kr. om året – skift i dag`
     : "Skift til Altid Energi";
   const ctaSub = currentSaving > 0
     ? "Det tager under 2 minutter. Vi håndterer opsigelsen til dit nuværende selskab – og som Danmarks eneste gebyrfri elselskab betaler du aldrig mere end nødvendigt."
