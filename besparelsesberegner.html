@@ -1203,18 +1203,6 @@
   <button class="sticky-dismiss" id="stickyDismiss" title="Luk">✕</button>
 </div>
 
-<!-- Skjult form til Bluenordix lead submission (omgår CORS) -->
-<iframe name="leadSink" style="display:none" aria-hidden="true"></iframe>
-<form id="leadForm"
-  action="https://altidenergi.bluenordix.com/api/v1/leads?api_token=nP4TLHCECC9cKnb9rHDqt3FIb146rbl5ZBOFh0Xw0EkLkce1XpEijuQzbiUN"
-  method="POST"
-  target="leadSink"
-  style="display:none">
-  <input type="hidden" name="campaign_id" value="69" />
-  <input type="hidden" name="name"        id="leadName" />
-  <input type="hidden" name="phone"       id="leadPhone" />
-</form>
-
 <!-- Sticky callback mini-form -->
 <div class="sticky-callback" id="stickyCallback">
   <h4>
@@ -1896,10 +1884,11 @@ document.getElementById("stickyDismiss").addEventListener("click", hideStickyBar
 
 /* ── Bluenordix lead submission ──────────────────────────────── */
 function submitLead(name, phone) {
-  // Bruger hidden form submit – omgår CORS fuldstændigt
-  document.getElementById("leadName").value  = name;
-  document.getElementById("leadPhone").value = phone;
-  document.getElementById("leadForm").submit();
+  const body = new URLSearchParams({ campaign_id: 69, name, phone });
+  fetch(
+    "https://altidenergi.bluenordix.com/api/v1/leads?api_token=nP4TLHCECC9cKnb9rHDqt3FIb146rbl5ZBOFh0Xw0EkLkce1XpEijuQzbiUN",
+    { method: "POST", body }
+  ).catch(() => {}); // ignorer CORS-fejl på response – leadet oprettes alligevel
 }
 
 document.getElementById("stickyCallbackBtn").addEventListener("click", () => {
