@@ -1210,8 +1210,8 @@
     <button class="sticky-dismiss" id="stickyCallbackClose">✕</button>
   </h4>
   <div class="sticky-callback-row">
-    <input type="text" id="scbName"  placeholder="Dit navn" />
-    <input type="tel"  id="scbPhone" placeholder="Telefonnummer" />
+    <input type="text" id="scbName"  placeholder="Dit navn" autocomplete="given-name" />
+    <input type="tel"  id="scbPhone" placeholder="Telefonnummer" autocomplete="tel" />
     <button class="sticky-callback-submit" id="scbSubmit">Send</button>
   </div>
 </div>
@@ -1741,8 +1741,8 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
     <div class="callback-form hidden" id="callbackForm">
       <h4>Vi ringer dig op hurtigst muligt</h4>
       <div class="callback-row">
-        <input type="text" id="cbName"  placeholder="Dit navn" />
-        <input type="tel"  id="cbPhone" placeholder="Telefonnummer" />
+        <input type="text" id="cbName"  placeholder="Dit navn" autocomplete="given-name" />
+        <input type="tel"  id="cbPhone" placeholder="Telefonnummer" autocomplete="tel" />
       </div>
       <button class="btn-callback-submit" id="cbSubmit">Send – ring mig op</button>
     </div>
