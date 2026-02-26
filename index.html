@@ -768,13 +768,28 @@
 
     /* Attribution */
     .attribution {
-      text-align: center;
-      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      background: var(--bg-subtle);
+      border-top: 1px solid var(--border);
+      font-size: 14px;
       color: var(--text-muted);
-      margin-top: 20px;
     }
-    .attribution a { color: var(--text-muted); text-decoration: underline; }
-    .attribution a:hover { color: var(--text-base); }
+    .attribution a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-base);
+      text-decoration: none;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border-mid);
+      padding-bottom: 1px;
+      transition: border-color .15s, color .15s;
+    }
+    .attribution a:hover { color: var(--green-600); border-color: var(--green-600); }
+    .attribution img { height: 22px; width: auto; display: block; }
 
     /* Error */
     .error-box {
@@ -1720,6 +1735,16 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
     </p>`;
   }
 
+  // Attribution direkte under tabellen (Strømligning-licenskrav: proximity + synlighed)
+  html += `
+  <div class="attribution">
+    <span>Data leveret af</span>
+    <a href="https://stromligning.dk" target="_blank" rel="noopener">
+      <img src="https://stromligning.dk/logo.svg" alt="Strømligning" />
+      stromligning.dk
+    </a>
+  </div>`;
+
   html += `</div>`;
 
   // ── CTA ───────────────────────────────────────────────────────
@@ -1762,12 +1787,9 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
     </div>
   </div>`;
 
-  // ── Reset + attribution ───────────────────────────────────────
+  // ── Reset ─────────────────────────────────────────────────────
   html += `
-  <button class="btn-reset" id="resetBtn">Beregn igen</button>
-  <p class="attribution">
-    Data leveret af <a href="https://stromligning.dk" target="_blank" rel="noopener"><img src="https://stromligning.dk/logo.svg" alt="Strømligning" style="height:18px;vertical-align:middle;opacity:.7"></a>
-  </p>`;
+  <button class="btn-reset" id="resetBtn">Beregn igen</button>`;
 
   resultsEl.innerHTML = html;
   resultsEl.classList.remove("hidden");
@@ -1897,8 +1919,6 @@ document.getElementById("stickyDismiss").addEventListener("click", hideStickyBar
 /* ── Bluenordix lead submission ──────────────────────────────── */
 async function submitLead(name, phone) {
   const body = new URLSearchParams({ campaign_id: 69, name, phone });
-
-  // Tilføj kontekst fra beregneren
   if (leadContext.provider) body.set("company_name", leadContext.provider);
   const notes = [
     leadContext.product ? `Aftale: ${leadContext.product}` : null,
@@ -1906,7 +1926,6 @@ async function submitLead(name, phone) {
     leadContext.kwh     ? `Forbrug: ${fmtNum(leadContext.kwh)} kWh/år` : null,
   ].filter(Boolean).join(" · ");
   if (notes) body.set("phone_description", notes);
-
   const res = await fetch(
     "https://altidenergi.bluenordix.com/api/v1/leads?api_token=nP4TLHCECC9cKnb9rHDqt3FIb146rbl5ZBOFh0Xw0EkLkce1XpEijuQzbiUN",
     { method: "POST", body }
