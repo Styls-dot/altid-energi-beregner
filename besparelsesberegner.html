@@ -1897,9 +1897,9 @@ async function submitLead(name, phone) {
   const body = new URLSearchParams({ campaign_id: 69, name, phone });
   await fetch(
     "https://altidenergi.bluenordix.com/api/v1/leads?api_token=nP4TLHCECC9cKnb9rHDqt3FIb146rbl5ZBOFh0Xw0EkLkce1XpEijuQzbiUN",
-    { method: "POST", body, mode: "no-cors" }
+    { method: "POST", body }
   );
-  // no-cors: svaret kan ikke læses pga. CORS, men leadet oprettes korrekt
+  // Læser ikke response – leadet oprettes korrekt uanset svar-format
 }
 
 document.getElementById("stickyCallbackBtn").addEventListener("click", () => {
