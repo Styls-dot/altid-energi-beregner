@@ -1539,15 +1539,23 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
   }
 
   // ── Altid Energi cost box ────────────────────────────────────
+  const aeSubPerMonth   = aeBest.subscriptionMonthly || 0;
+  const aeSurchargeKr   = aeBest.consumptionSurcharge || 0; // kr/kWh fra API
+  const aeSurchDesc     = aeSurchargeKr === 0
+    ? "0 øre/kWh tillæg"
+    : `${fmtOere(aeSurchargeKr)} øre/kWh tillæg`;
+  // API returnerer priser ekskl. moms – gang med 1,25 for at vise hvad kunden betaler
+  const aeAnnualCost    = Math.round((aeSubPerMonth * 12 + aeSurchargeKr * consumption) * 1.25);
+
   html += `
   <div class="ae-cost">
     <div class="left">
       <div class="name">Altid Energi <span class="ae-badge">Dit nye selskab</span></div>
-      <div class="product-name">${escHtml(aeBest.name)} &nbsp;·&nbsp; 0 øre/kWh tillæg &nbsp;·&nbsp; ingen binding</div>
+      <div class="product-name">${escHtml(aeBest.name)} &nbsp;·&nbsp; ${aeSurchDesc} &nbsp;·&nbsp; ingen binding</div>
     </div>
     <div class="right">
-      <div class="price">${fmtDKK(aeCost)} kr.</div>
-      <div class="unit">om året (tillæg + abonnement)</div>
+      <div class="price">${fmtDKK(aeAnnualCost)} kr.</div>
+      <div class="unit">om året inkl. moms</div>
     </div>
   </div>`;
 
