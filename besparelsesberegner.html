@@ -1735,7 +1735,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
       const minS = Math.round(Math.min(...savings));
       const maxS = Math.round(Math.max(...savings));
       if (maxS - minS > 50) {
-        stickyText = `Spar ${fmtDKK(minS)}–${fmtDKK(maxS)} kr./år – alt efter din aftale`;
+        stickyText = `Skift og spar ${fmtDKK(minS)}–${fmtDKK(maxS)} kr./årligt`;
       }
     }
   }
@@ -1793,7 +1793,7 @@ const stickyHeadline = document.getElementById("stickyHeadline");
 
 function showStickyBar(savingAmount, customText = null) {
   const text = customText || (savingAmount > 0
-    ? `Spar ${fmtDKK(savingAmount)} kr./år – skift til Altid Energi`
+    ? `Skift og spar ${fmtDKK(savingAmount)} kr./årligt`
     : "Skift til Altid Energi");
   if (inIframe) {
     window.parent.postMessage({ type: "ae-sticky-show", text }, "*");
