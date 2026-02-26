@@ -293,6 +293,11 @@
     }
     .ev-km-unit { font-size: 13px; color: var(--text-muted); }
 
+    /* ── Multi-step wrapper (usynlig på desktop) ──────────────── */
+    .step-progress { display: none; }
+    .step-nav      { display: none; }
+    .mobile-step   { display: block; } /* Transparent wrapper på desktop */
+
     /* ── Forbrug estimat ──────────────────────────────────────── */
     .consumption-estimate {
       background: var(--bg-subtle);
@@ -972,6 +977,62 @@
 
       /* Note-box */
       .note-box { font-size: 12px; }
+
+      /* ── Multi-step (kun mobil) ─────────────────────────────── */
+      .step-progress {
+        display: flex !important;
+        align-items: center;
+        margin-bottom: 28px;
+      }
+      .step-dot {
+        width: 30px; height: 30px;
+        border-radius: 50%;
+        background: var(--border);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 13px; font-weight: 700;
+        color: var(--text-muted);
+        flex-shrink: 0;
+        transition: background .2s, color .2s, transform .2s;
+      }
+      .step-dot.active { background: var(--blue-cta); color: #fff; transform: scale(1.1); }
+      .step-dot.done   { background: var(--teal); color: #fff; }
+      .step-connector  { flex: 1; height: 2px; background: var(--border); border-radius: 1px; transition: background .3s; }
+      .step-connector.done { background: var(--teal); }
+
+      .mobile-steps-active .mobile-step { display: none; }
+      .mobile-steps-active .mobile-step.active { display: block; }
+
+      .step-nav {
+        display: flex !important;
+        gap: 10px;
+        margin-top: 16px;
+      }
+      .btn-step-back {
+        padding: 14px 20px;
+        background: var(--bg-subtle);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font-size: 15px; font-weight: 600;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-family: inherit;
+      }
+      .btn-step-next {
+        flex: 1;
+        padding: 14px;
+        background: var(--blue-cta);
+        border: none;
+        border-radius: 10px;
+        font-size: 16px; font-weight: 700;
+        color: #fff;
+        cursor: pointer;
+        font-family: inherit;
+      }
+      /* På trin 3: skjul step-nav, vis calc-knappen i stedet */
+      .mobile-steps-active.step-3 .step-nav { display: none !important; }
+      .mobile-steps-active.step-3 .btn-calc  { display: block; }
+      /* På trin 1-2: skjul calc-knappen */
+      .mobile-steps-active:not(.step-3) .btn-calc { display: none; }
     }
   </style>
 </head>
@@ -988,6 +1049,18 @@
 
   <!-- Input card -->
   <div class="card" id="inputCard">
+
+    <!-- Step progress (mobil) -->
+    <div class="step-progress" id="stepProgress">
+      <div class="step-dot active" data-dot="1">1</div>
+      <div class="step-connector" data-conn="1"></div>
+      <div class="step-dot" data-dot="2">2</div>
+      <div class="step-connector" data-conn="2"></div>
+      <div class="step-dot" data-dot="3">3</div>
+    </div>
+
+    <!-- Trin 1: Forbrug -->
+    <div class="mobile-step" data-step="1">
 
     <div class="field">
       <label>Kender du dit årlige elforbrug?</label>
@@ -1113,6 +1186,11 @@
       </div><!-- /field -->
     </div><!-- /estimateSection -->
 
+    </div><!-- /mobile-step 1 -->
+
+    <!-- Trin 2: Region -->
+    <div class="mobile-step" data-step="2">
+
     <div class="field">
       <label>Region <small>Bruges til at finde den rigtige nettarif</small></label>
       <div class="region-toggle">
@@ -1122,6 +1200,11 @@
         <label for="dk2">DK2 &nbsp;·&nbsp; Sjælland & øer</label>
       </div>
     </div>
+
+    </div><!-- /mobile-step 2 -->
+
+    <!-- Trin 3: Selskab + beregn -->
+    <div class="mobile-step" data-step="3">
 
     <div class="field">
       <label for="providerSelect">Dit nuværende elselskab <small>valgfrit</small></label>
@@ -1138,6 +1221,15 @@
     </div>
 
     <button class="btn-calc" id="calcBtn" disabled>Beregn min besparelse</button>
+
+    </div><!-- /mobile-step 3 -->
+
+    <!-- Step-navigation (mobil) -->
+    <div class="step-nav" id="stepNav">
+      <button class="btn-step-back" id="stepBack">← Tilbage</button>
+      <button class="btn-step-next" id="stepNext">Næste →</button>
+    </div>
+
   </div>
 
   <!-- Results -->
@@ -1826,6 +1918,66 @@ document.getElementById("scbSubmit").addEventListener("click", () => {
     ✓ Tak, ${escHtml(name)}! Vi ringer dig op hurtigst muligt.
   </p>`;
   setTimeout(hideStickyBar, 3000);
+});
+
+/* ── Mobile multi-step ───────────────────────────────────────── */
+const inputCard = document.getElementById("inputCard");
+const stepBack  = document.getElementById("stepBack");
+const stepNext  = document.getElementById("stepNext");
+let mobileStep  = 1;
+const TOTAL_STEPS = 3;
+
+function isMobileView() { return window.innerWidth <= 580; }
+
+function activateMobileSteps() {
+  inputCard.classList.add("mobile-steps-active");
+  setMobileStep(1);
+}
+
+function deactivateMobileSteps() {
+  inputCard.classList.remove("mobile-steps-active", "step-1", "step-2", "step-3");
+  document.querySelectorAll(".mobile-step").forEach(el => el.classList.remove("active"));
+}
+
+function setMobileStep(n) {
+  mobileStep = n;
+  // Vis korrekt step
+  document.querySelectorAll(".mobile-step").forEach(el => {
+    el.classList.toggle("active", Number(el.dataset.step) === n);
+  });
+  // Opdater dots og connectors
+  document.querySelectorAll(".step-dot").forEach(dot => {
+    const i = Number(dot.dataset.dot);
+    dot.classList.toggle("active", i === n);
+    dot.classList.toggle("done",   i < n);
+  });
+  document.querySelectorAll(".step-connector").forEach(conn => {
+    conn.classList.toggle("done", Number(conn.dataset.conn) < n);
+  });
+  // Vis/skjul Tilbage-knap
+  stepBack.style.display = n === 1 ? "none" : "";
+  // Opdater step-klasse på kortet (styrer calc-knap vs step-nav)
+  inputCard.classList.remove("step-1", "step-2", "step-3");
+  inputCard.classList.add(`step-${n}`);
+  // Scroll til toppen af kortet
+  inputCard.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+stepNext.addEventListener("click", () => {
+  if (mobileStep < TOTAL_STEPS) setMobileStep(mobileStep + 1);
+});
+stepBack.addEventListener("click", () => {
+  if (mobileStep > 1) setMobileStep(mobileStep - 1);
+});
+
+// Init og resize
+if (isMobileView()) activateMobileSteps();
+window.addEventListener("resize", () => {
+  if (isMobileView()) {
+    if (!inputCard.classList.contains("mobile-steps-active")) activateMobileSteps();
+  } else {
+    deactivateMobileSteps();
+  }
 });
 
 /* ── Iframe-detektering ──────────────────────────────────────── */
