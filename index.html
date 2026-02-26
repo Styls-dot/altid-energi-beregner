@@ -957,30 +957,40 @@
       .cta-buttons { grid-template-columns: 1fr; }
       .callback-row { grid-template-columns: 1fr; }
 
-      /* AE-cost blok */
-      .ae-cost { flex-direction: column; gap: 10px; }
-      .ae-cost .right { text-align: left; }
-      .ae-cost .right .price { font-size: 22px; }
+      /* AE-cost blok – behold som række, bare stram op */
+      .ae-cost { gap: 12px; align-items: flex-start; }
+      .ae-cost .left { flex: 1; min-width: 0; }
+      .ae-cost .left .name { font-size: 14px; flex-wrap: wrap; }
+      .ae-cost .right { flex-shrink: 0; text-align: right; }
+      .ae-cost .right .price { font-size: 20px; white-space: nowrap; }
+      .ae-cost .right .unit { font-size: 11px; max-width: 90px; }
 
       /* Sammenlignings-tabel */
       .table-card { border-radius: 10px; }
-      .comp-table td, .comp-table th { padding: 10px 10px; }
-      /* Skjul rangerings-kolonne og spottillæg på mobil */
+      .comp-table td, .comp-table th { padding: 10px 8px; }
+      /* Mobil: vis kun Selskab + Total/år */
       .comp-table th:nth-child(1),
       .comp-table td:nth-child(1),
       .comp-table th:nth-child(3),
-      .comp-table td:nth-child(3) { display: none; }
+      .comp-table td:nth-child(3),
+      .comp-table th:nth-child(4),
+      .comp-table td:nth-child(4) { display: none; }
       /* Kompakt produkt-undertekst */
       .comp-product { display: none; }
-      .comp-table tbody tr.product-sub-row td.comp-product-cell { padding-left: 16px; font-size: 12px; }
+      .comp-table tbody tr.product-sub-row td.comp-product-cell { padding-left: 12px; font-size: 12px; }
 
       /* Savings banner */
-      .savings-banner .amount { font-size: clamp(30px, 10vw, 44px); }
-      .savings-banner .sub { font-size: 14px; }
+      .savings-banner { padding: 22px 18px; }
+      .savings-banner .amount { font-size: clamp(28px, 9vw, 44px); }
+      .savings-banner .sub { font-size: 13px; }
       .intro-disclaimer { font-size: 12px; }
 
+      /* CTA */
+      .cta-card h3 { font-size: 17px; }
+      .cta-card p  { font-size: 14px; margin-bottom: 18px; }
+
       /* Note-box */
-      .note-box { font-size: 12px; }
+      .note-box { font-size: 12px; padding: 12px 14px; }
     }
   </style>
 </head>
@@ -991,7 +1001,7 @@
   <!-- Hero -->
   <div class="hero">
     <div class="hero-badge">Gratis beregner</div>
-    <h1>Se hvor meget du kan spare<br>ved at skifte til <span>Altid Energi</span></h1>
+    <h1>Se hvor meget du kan spare ved at skifte til <span>Altid Energi</span></h1>
     <p>Angiv dit elforbrug og se hvad du betaler hos dit nuværende selskab – versus hvad du ville betale hos os.</p>
   </div>
 
@@ -1566,7 +1576,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
       <h3>Hvad betaler andre?</h3>
       <small>${fmtNum(consumption)} kWh/år &nbsp;·&nbsp; ${region}</small>
     </div>
-    <div style="overflow-x:auto">
+    <div style="overflow-x:auto;max-width:100%">
       <table class="comp-table">
         <thead>
           <tr>
