@@ -1823,7 +1823,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
   });
 
   // Callback submit
-  document.getElementById("cbSubmit").addEventListener("click", () => {
+  document.getElementById("cbSubmit").addEventListener("click", async () => {
     const name  = document.getElementById("cbName").value.trim();
     const phone = document.getElementById("cbPhone").value.trim();
     if (!name || !phone) {
@@ -1831,7 +1831,10 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
       document.getElementById("cbPhone").style.borderColor = phone ? "" : "var(--yellow)";
       return;
     }
-    submitLead(name, phone);
+    const btn = document.getElementById("cbSubmit");
+    btn.disabled = true;
+    btn.textContent = "Sender…";
+    try { await submitLead(name, phone); } catch { /* ignorer */ }
     document.getElementById("callbackForm").innerHTML =
       `<p class="callback-success">✓ Tak, ${escHtml(name)}! Vi ringer dig op hurtigst muligt.</p>`;
   });
@@ -1883,12 +1886,14 @@ function hideStickyBar() {
 document.getElementById("stickyDismiss").addEventListener("click", hideStickyBar);
 
 /* ── Bluenordix lead submission ──────────────────────────────── */
-function submitLead(name, phone) {
+async function submitLead(name, phone) {
   const body = new URLSearchParams({ campaign_id: 69, name, phone });
-  fetch(
+  const res = await fetch(
     "https://altidenergi.bluenordix.com/api/v1/leads?api_token=nP4TLHCECC9cKnb9rHDqt3FIb146rbl5ZBOFh0Xw0EkLkce1XpEijuQzbiUN",
     { method: "POST", body }
-  ).catch(() => {}); // ignorer CORS-fejl på response – leadet oprettes alligevel
+  );
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
 }
 
 document.getElementById("stickyCallbackBtn").addEventListener("click", () => {
@@ -1902,14 +1907,14 @@ document.getElementById("stickyCallbackClose").addEventListener("click", () => {
   stickyBar.classList.add("visible");
 });
 
-document.getElementById("scbSubmit").addEventListener("click", () => {
+document.getElementById("scbSubmit").addEventListener("click", async () => {
   const name  = document.getElementById("scbName").value.trim();
   const phone = document.getElementById("scbPhone").value.trim();
   document.getElementById("scbName").style.borderColor  = name  ? "" : "var(--yellow)";
   document.getElementById("scbPhone").style.borderColor = phone ? "" : "var(--yellow)";
   if (!name || !phone) return;
 
-  submitLead(name, phone);
+  try { await submitLead(name, phone); } catch { /* ignorer */ }
   stickyCallback.innerHTML = `<p style="color:var(--teal);font-weight:700;font-size:15px;padding:4px 0">
     ✓ Tak, ${escHtml(name)}! Vi ringer dig op hurtigst muligt.
   </p>`;
