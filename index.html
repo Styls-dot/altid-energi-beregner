@@ -535,6 +535,37 @@
     .diff-positive { color: #C0392B; font-weight: 700; }
     .diff-zero { color: var(--blue); font-weight: 700; }
 
+    /* Intro offer badge */
+    .intro-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: #FFF3CD;
+      color: #856404;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+      border: 1px solid #FFD75E;
+      margin-left: 6px;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+    .intro-disclaimer {
+      font-size: 13px;
+      color: rgba(255,255,255,.7);
+      margin-top: 10px;
+      background: rgba(255,211,75,.12);
+      border: 1px solid rgba(255,211,75,.3);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      text-align: left;
+    }
+    .intro-disclaimer strong { color: #FFD15C; }
+
     /* Company group header row */
     .comp-table tbody tr.company-group-header td {
       padding: 10px 16px 6px;
@@ -1264,6 +1295,11 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
         <div class="label">Din potentielle besparelse</div>
         <div class="amount">${fmtDKK(saving)} kr.</div>
         <div class="sub">om året ved at skifte fra <strong>${escHtml(currentCheapest.company.name)}</strong> til Altid Energi</div>
+        ${currentCheapest.product.introductoryOffer ? `
+        <div class="intro-disclaimer">
+          <span>⏱</span>
+          <span><strong>Bemærk:</strong> Din nuværende aftale er et introtilbud. Prisen stiger typisk markant efter introduktionsperioden – den reelle besparelse ved at skifte til Altid Energi kan være endnu større.</span>
+        </div>` : ""}
       </div>`;
     } else {
       const diff = Math.abs(saving);
@@ -1383,6 +1419,11 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
       ? `<span class="surcharge-pill zero">0 øre</span>`
       : `<span class="surcharge-pill">${fmtOere(surcharge)} øre</span>`;
   }
+  function makeIntroPill(product) {
+    return product.introductoryOffer
+      ? `<span class="intro-pill">⏱ Introtilbud</span>`
+      : "";
+  }
 
   let rank = 1;
   groups.forEach(({ company, products }) => {
@@ -1410,7 +1451,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
             <td class="rank">${rankCell}</td>
             <td>
               <div class="comp-name">${escHtml(company.name)}${compBadge}</div>
-              <div class="comp-product">${escHtml(product.name)}</div>
+              <div class="comp-product">${escHtml(product.name)}${makeIntroPill(product)}</div>
             </td>
             <td>${makeSurchStr(product)}</td>
             <td class="num">${fmtDKK(subCost)} kr.</td>
@@ -1430,7 +1471,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
         html += `
           <tr class="product-sub-row ${rowClass}">
             <td></td>
-            <td class="comp-product-cell">${escHtml(product.name)}</td>
+            <td class="comp-product-cell">${escHtml(product.name)}${makeIntroPill(product)}</td>
             <td>${makeSurchStr(product)}</td>
             <td class="num">${fmtDKK(subCost)} kr.</td>
             <td class="num">${fmtDKK(product.totalCost)} kr.</td>
