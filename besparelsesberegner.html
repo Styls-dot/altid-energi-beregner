@@ -1749,5 +1749,14 @@ document.getElementById("scbSubmit").addEventListener("click", () => {
 /* ── Init ────────────────────────────────────────────────────── */
 loadProviders();
 </script>
+
+<script>
+  /* ── Auto-resize til parent (iframe embed) ─────────────────── */
+  const ro = new ResizeObserver(() => {
+    const h = document.documentElement.scrollHeight;
+    window.parent.postMessage({ type: "ae-resize", height: h }, "*");
+  });
+  ro.observe(document.body);
+</script>
 </body>
 </html>
