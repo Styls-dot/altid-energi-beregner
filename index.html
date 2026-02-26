@@ -917,16 +917,61 @@
     .hidden { display: none !important; }
 
     @media (max-width: 580px) {
-      .calculator { padding: 28px 16px 60px; }
-      .card { padding: 24px 20px; }
-      .savings-banner { padding: 28px 24px; }
-      .cta-card { padding: 28px 20px; }
+      /* Layout */
+      .calculator { padding: 24px 14px 60px; }
+      .card { padding: 22px 16px; }
+      .savings-banner { padding: 24px 20px; }
+      .cta-card { padding: 24px 20px; }
+
+      /* Hero */
+      .hero { padding: 28px 0 20px; }
+      .hero p { font-size: 15px; }
+
+      /* Kender-du-dit-forbrug */
+      .know-toggle { grid-template-columns: 1fr; gap: 8px; }
+
+      /* Boligkort: 3 i en række er for smalt – brug 2+1 */
+      .housing-cards { grid-template-columns: repeat(2, 1fr); }
+      .housing-cards .housing-card:last-child .card-inner { /* centrér det enlige kort */ }
+      .card-title { font-size: 11px; }
+      .card-kwh { font-size: 10px; }
+
+      /* Slider */
+      .slider-row { flex-wrap: wrap; gap: 10px; }
+      .slider-row input[type="range"] { order: -1; flex: 0 0 100%; }
+      .kwh-display { width: 100%; justify-content: center; }
+
+      /* Region */
+      .region-toggle label { font-size: 13px; padding: 10px 8px; }
+
+      /* CTA-knapper og callback */
       .cta-buttons { grid-template-columns: 1fr; }
       .callback-row { grid-template-columns: 1fr; }
-      .ae-cost { flex-direction: column; }
+
+      /* AE-cost blok */
+      .ae-cost { flex-direction: column; gap: 10px; }
       .ae-cost .right { text-align: left; }
+      .ae-cost .right .price { font-size: 22px; }
+
+      /* Sammenlignings-tabel */
+      .table-card { border-radius: 10px; }
+      .comp-table td, .comp-table th { padding: 10px 10px; }
+      /* Skjul rangerings-kolonne og spottillæg på mobil */
+      .comp-table th:nth-child(1),
+      .comp-table td:nth-child(1),
       .comp-table th:nth-child(3),
       .comp-table td:nth-child(3) { display: none; }
+      /* Kompakt produkt-undertekst */
+      .comp-product { display: none; }
+      .comp-table tbody tr.product-sub-row td.comp-product-cell { padding-left: 16px; font-size: 12px; }
+
+      /* Savings banner */
+      .savings-banner .amount { font-size: clamp(30px, 10vw, 44px); }
+      .savings-banner .sub { font-size: 14px; }
+      .intro-disclaimer { font-size: 12px; }
+
+      /* Note-box */
+      .note-box { font-size: 12px; }
     }
   </style>
 </head>
