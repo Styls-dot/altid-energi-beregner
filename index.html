@@ -1722,17 +1722,24 @@ const stickyCallback = document.getElementById("stickyCallback");
 const stickyHeadline = document.getElementById("stickyHeadline");
 
 function showStickyBar(savingAmount) {
-  if (savingAmount > 0) {
-    stickyHeadline.textContent = `Spar ${fmtDKK(savingAmount)} kr./år – skift til Altid Energi`;
+  const text = savingAmount > 0
+    ? `Spar ${fmtDKK(savingAmount)} kr./år – skift til Altid Energi`
+    : "Skift til Altid Energi";
+  if (inIframe) {
+    window.parent.postMessage({ type: "ae-sticky-show", text }, "*");
   } else {
-    stickyHeadline.textContent = "Skift til Altid Energi";
+    stickyHeadline.textContent = text;
+    stickyBar.classList.add("visible");
   }
-  stickyBar.classList.add("visible");
 }
 
 function hideStickyBar() {
-  stickyBar.classList.remove("visible");
-  stickyCallback.classList.remove("visible");
+  if (inIframe) {
+    window.parent.postMessage({ type: "ae-sticky-hide" }, "*");
+  } else {
+    stickyBar.classList.remove("visible");
+    stickyCallback.classList.remove("visible");
+  }
 }
 
 document.getElementById("stickyDismiss").addEventListener("click", hideStickyBar);
