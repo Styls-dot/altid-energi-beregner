@@ -422,36 +422,33 @@
 
     /* Altid Energi cost highlight */
     .ae-cost {
-      background: var(--teal-light);
-      border: 2px solid var(--teal);
+      background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
       border-radius: var(--radius);
-      padding: 24px 28px;
+      padding: 28px 32px;
       margin-bottom: 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 20px;
+      gap: 24px;
+      box-shadow: var(--shadow-lg);
     }
-    .ae-cost-left { display: flex; flex-direction: column; gap: 0; }
+    .ae-cost-left { display: flex; flex-direction: column; gap: 6px; }
     .ae-cost-right { text-align: right; flex-shrink: 0; }
-    .ae-logo {
-      height: 32px;
-      width: auto;
-      max-width: 160px;
-      object-fit: contain;
-      display: block;
-    }
     .ae-cost-label {
       font-size: 11px;
       font-weight: 700;
-      letter-spacing: .07em;
+      letter-spacing: .08em;
       text-transform: uppercase;
-      color: var(--blue-cta);
-      margin-bottom: 2px;
+      color: var(--teal);
     }
-    .ae-cost .product-name { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
-    .ae-cost .price { font-size: 40px; font-weight: 800; color: var(--blue); line-height: 1; }
-    .ae-cost .unit { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+    .ae-cost-name {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .ae-cost .product-name { font-size: 13px; color: rgba(255,255,255,.6); }
+    .ae-cost .price { font-size: 42px; font-weight: 800; color: var(--yellow); line-height: 1; }
+    .ae-cost .unit { font-size: 13px; color: rgba(255,255,255,.6); margin-top: 4px; }
 
     /* Note box */
     .note-box {
@@ -1544,7 +1541,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
   <div class="ae-cost">
     <div class="ae-cost-left">
       <div class="ae-cost-label">Dit nye selskab</div>
-      <img src="https://altidenergi.dk/wp-content/uploads/2025/07/logo-2.png" alt="Altid Energi" class="ae-logo" />
+      <div class="ae-cost-name">Altid Energi</div>
       <div class="product-name">${escHtml(aeBest.name)} &nbsp;·&nbsp; ${aeSurchDesc} &nbsp;·&nbsp; ingen binding</div>
     </div>
     <div class="ae-cost-right">
