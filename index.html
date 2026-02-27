@@ -809,13 +809,12 @@
       bottom: 0; left: 0; right: 0;
       background: var(--navy);
       border-top: 1px solid rgba(255,255,255,.1);
-      padding: 14px 24px;
+      padding: 12px 24px;
       z-index: 200;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      text-align: center;
-      gap: 10px;
+      justify-content: center;
+      gap: 20px;
       box-shadow: 0 -4px 24px rgba(16,29,47,.25);
       transform: translateY(100%);
       transition: transform .35s cubic-bezier(.4,0,.2,1);
@@ -834,23 +833,30 @@
       transform: translateY(0);
     }
     .sticky-bar-text {
+      display: flex;
+      align-items: center;
+      gap: 10px;
       min-width: 0;
     }
     .sticky-bar-text strong {
-      display: block;
       color: #fff;
       font-size: 15px;
       font-weight: 700;
+      white-space: nowrap;
     }
     .sticky-bar-text span {
-      font-size: 12px;
+      font-size: 13px;
       color: var(--teal);
       font-weight: 500;
+      white-space: nowrap;
+    }
+    .sticky-bar-text .sep {
+      color: rgba(255,255,255,.2);
+      font-size: 16px;
     }
     .sticky-bar-actions {
       display: flex;
       gap: 10px;
-      justify-content: center;
     }
     .sticky-btn-primary {
       padding: 10px 20px;
@@ -1209,6 +1215,7 @@
 <div class="sticky-bar" id="stickyBar">
   <div class="sticky-bar-text">
     <strong id="stickyHeadline">Skift til Altid Energi</strong>
+    <span class="sep">·</span>
     <span>Danmarks eneste gebyrfri elselskab</span>
   </div>
   <div class="sticky-bar-actions">
