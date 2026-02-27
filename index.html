@@ -1615,22 +1615,18 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
   const currentRows = currentSlug
     ? competitors.filter(e => e.company.slug === currentSlug)
     : [];
-  const pricierRows = competitors
+  const otherRows = competitors
     .filter(e =>
       e.company.slug !== AE_SLUG &&
-      e.company.slug !== currentSlug &&
-      e.product.totalCost > aeCost
+      e.company.slug !== currentSlug
     )
     .sort((a, b) => b.product.totalCost - a.product.totalCost); // dyreste øverst
 
   const tableRows = [
     ...aeRows.map(e      => ({ entry: e, pinned: true  })),
     ...currentRows.map(e => ({ entry: e, pinned: true  })),
-    ...pricierRows.map(e => ({ entry: e, pinned: false })),
+    ...otherRows.map(e   => ({ entry: e, pinned: false })),
   ];
-
-  const currentCheaperProducts = currentRows.filter(e => e.product.totalCost < aeCost).length;
-  const hiddenCount = cheaperCount - currentCheaperProducts;
 
   const hasPinned = currentSlug !== null;
 
