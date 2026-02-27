@@ -318,7 +318,7 @@
     .consumption-estimate strong {
       font-size: 16px;
       font-weight: 800;
-      color: var(--text-dark);
+      color: var(--blue);
     }
 
     /* Region toggle */
@@ -450,25 +450,26 @@
       background: var(--teal-light);
       border: 2px solid var(--teal);
       border-radius: var(--radius);
-      padding: 20px 24px;
+      padding: 24px;
       margin-bottom: 24px;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
+      text-align: center;
+      gap: 8px;
     }
     .ae-logo {
       height: 28px;
       width: auto;
       display: block;
     }
-    .ae-cost .left .name {
+    .ae-cost .name {
       font-weight: 700;
       font-size: 16px;
       color: var(--text-dark);
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
     }
     .ae-badge {
@@ -481,10 +482,9 @@
       padding: 3px 8px;
       border-radius: 4px;
     }
-    .ae-cost .left .product-name { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
-    .ae-cost .right { text-align: right; }
-    .ae-cost .right .price { font-size: 28px; font-weight: 800; color: var(--blue); }
-    .ae-cost .right .unit { font-size: 13px; color: var(--text-muted); }
+    .ae-cost .product-name { font-size: 13px; color: var(--text-muted); }
+    .ae-cost .price { font-size: 36px; font-weight: 800; color: var(--blue); line-height: 1.1; }
+    .ae-cost .unit { font-size: 13px; color: var(--text-muted); }
 
     /* Note box */
     .note-box {
@@ -1563,14 +1563,10 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
 
   html += `
   <div class="ae-cost">
-    <div class="left">
-      <div class="name"><img src="https://altidenergi.dk/wp-content/uploads/2025/07/logo-2.png" alt="Altid Energi" class="ae-logo" /> <span class="ae-badge">Dit nye selskab</span></div>
-      <div class="product-name">${escHtml(aeBest.name)} &nbsp;·&nbsp; ${aeSurchDesc} &nbsp;·&nbsp; ingen binding</div>
-    </div>
-    <div class="right">
-      <div class="price">${fmtDKK(aeAnnualCost)} kr.</div>
-      <div class="unit">om året inkl. moms</div>
-    </div>
+    <div class="name"><img src="https://altidenergi.dk/wp-content/uploads/2025/07/logo-2.png" alt="Altid Energi" class="ae-logo" /> <span class="ae-badge">Dit nye selskab</span></div>
+    <div class="product-name">${escHtml(aeBest.name)} &nbsp;·&nbsp; ${aeSurchDesc} &nbsp;·&nbsp; ingen binding</div>
+    <div class="price">${fmtDKK(aeAnnualCost)} kr.</div>
+    <div class="unit">om året inkl. moms</div>
   </div>`;
 
   // ── Info note ────────────────────────────────────────────────
@@ -1581,8 +1577,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
       <line x1="12" y1="16" x2="12.01" y2="16"/>
     </svg>
     <span>
-      Alle priser er <strong>inkl. moms</strong> og viser hvad hvert selskab opkræver <strong>oven på spotprisen</strong>:
-      spotpristillæg + abonnement. Selve spotprisen fra elbørsen er ens for alle variable produkter.
+      Alle priser er naturligvis <strong>inkl. moms</strong> og viser, hvad hvert elselskab lægger oven på indkøbsprisen i form af <strong>spotpristillæg og abonnement</strong>. Indkøbsprisen (spotprisen fra elbørsen) er den samme for alle elselskaber med variable produkter – og du kan i Danmark ikke vælge, hvor din strøm kommer fra, da den er ens for alle.
     </span>
   </div>`;
 
@@ -1627,7 +1622,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
             <th>Tillæg pr. kWh</th>
             <th class="num">Abo./år</th>
             <th class="num">Total/år inkl. moms</th>
-            <th class="num">Mere end Altid Energi</th>
+            <th class="num" style="color:#c0392b">Dyrere end Altid Energi</th>
           </tr>
         </thead>
         <tbody id="pinnedRows">`;
@@ -1720,17 +1715,11 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
     </button>`;
   }
 
-  if (hiddenCount > 0) {
-    html += `
-    <p style="padding:12px 20px;font-size:12px;color:var(--text-muted);border-top:1px solid var(--bg-subtle)">
-      + ${hiddenCount} ${hiddenCount === 1 ? "selskab er" : "selskaber er"} billigere end Altid Energi og vises ikke her.
-    </p>`;
-  }
 
   // Attribution direkte under tabellen (Strømligning-licenskrav: proximity + synlighed)
   html += `
   <div class="attribution">
-    <span>Data leveret af</span>
+    <span>Data leveret af tredjeparten</span>
     <a href="https://stromligning.dk" target="_blank" rel="noopener">
       <img src="https://stromligning.dk/logo.svg" alt="Strømligning" />
       stromligning.dk
@@ -1765,6 +1754,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
   <div class="cta-card">
     <h3>${ctaHeadline}</h3>
     <p>${ctaSub}</p>
+    <p style="font-size:13px;opacity:.75;margin-top:-8px">⭐ 11.235 kunder har allerede skiftet og har til sammen sparet 19.000.000 kr.</p>
     <div class="cta-buttons">
       <a class="btn-cta" href="https://altidenergi.dk" target="_blank" rel="noopener">Skift nu – det tager 2 min.</a>
       <button class="btn-cta-outline" id="callbackToggle">Bliv ringet op</button>
