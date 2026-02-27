@@ -610,7 +610,19 @@
     }
     .comp-table tbody tr.is-ae.company-group-header td    { background: var(--teal-light); border-color: #9ADFF0; }
     .comp-table tbody tr.is-current.company-group-header td { background: #EEF3FF; border-color: #BFD0FF; }
-    .comp-table tbody tr.company-group-header:hover td { background: inherit; }
+    .comp-table tbody tr.company-group-header[data-toggle] { cursor: pointer; }
+    .comp-table tbody tr.company-group-header[data-toggle]:hover td { filter: brightness(.96); }
+    .group-chevron {
+      display: inline-block;
+      margin-left: 8px;
+      font-size: 18px;
+      line-height: 1;
+      vertical-align: middle;
+      color: var(--text-muted);
+      transition: transform .2s;
+      transform: rotate(0deg);
+    }
+    .group-chevron.open { transform: rotate(90deg); }
 
     /* Product sub-rows (under a grouped company) */
     .comp-table tbody tr.product-sub-row td { padding: 9px 16px; }
@@ -1244,6 +1256,14 @@ const API       = "https://stromligning.dk/api";
 const AE_SLUG   = "altid-energi";
 const CACHE_TTL = 5 * 60 * 1000; // 5 min
 
+function toggleGroup(groupId) {
+  const rows    = document.querySelectorAll(`[data-group="${groupId}"]`);
+  const chevron = document.getElementById(`chev-${groupId}`);
+  const isOpen  = rows[0] && !rows[0].classList.contains("hidden");
+  rows.forEach(r => r.classList.toggle("hidden", isOpen));
+  if (chevron) chevron.classList.toggle("open", !isOpen);
+}
+
 /* ── State ───────────────────────────────────────────────────── */
 let companiesCache = {}; // key: "DK1_5000" → { data, ts }
 let leadContext    = {}; // gemmes når resultater vises
@@ -1664,6 +1684,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
       : "";
   }
 
+  let groupCounter = 0;
   function renderGroup({ company, products }, rank) {
     const isAE      = company.slug === AE_SLUG;
     const isCurrent = currentSlug && company.slug === currentSlug;
@@ -1676,18 +1697,35 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
     const myProductBadge = isCurrent && selectedProductName
       ? `<span style="font-size:10px;color:#2563eb;font-weight:700;margin-left:6px">← din aftale</span>`
       : "";
-    const rankCell = isAE ? "★" : isCurrent ? "→" : rank;
+    const rankCell      = isAE ? "★" : isCurrent ? "→" : rank;
+    const groupId       = `grp-${groupCounter++}`;
+    const startExpanded = isAE || isCurrent;
+    const isClickable   = !isAE;
+
+    const maxDiff = Math.max(...products.map(p => Math.round((p.totalCost - aeCost) * VAT)));
+    const headerDiffCell = isAE
+      ? '<span class="diff-zero">Basis</span>'
+      : maxDiff > 0
+        ? `<span class="diff-positive">op til +${fmtDKK(maxDiff)} kr.</span>`
+        : `<span style="color:var(--slate-400);font-weight:600">${fmtDKK(maxDiff)} kr.</span>`;
+
+    const chevron    = isClickable
+      ? `<span class="group-chevron ${startExpanded ? 'open' : ''}" id="chev-${groupId}">›</span>`
+      : "";
+    const toggleAttr = isClickable ? `onclick="toggleGroup('${groupId}')"` : "";
+
     let out = "";
     out += `
-          <tr class="company-group-header ${rowClass}">
+          <tr class="company-group-header ${rowClass}" ${toggleAttr}>
             <td class="rank">${rankCell}</td>
-            <td colspan="5"><span class="comp-name">${escHtml(company.name)}${compBadge}</span></td>
+            <td colspan="4"><span class="comp-name">${escHtml(company.name)}${compBadge}</span>${chevron}</td>
+            <td class="num">${headerDiffCell}</td>
           </tr>`;
     products.forEach(product => {
       const diff    = Math.round((product.totalCost - aeCost) * VAT);
       const subCost = Math.round((product.subscriptionMonthly || 0) * 12 * VAT);
       out += `
-          <tr class="product-sub-row ${rowClass}">
+          <tr class="product-sub-row ${rowClass}${startExpanded ? '' : ' hidden'}" data-group="${groupId}">
             <td></td>
             <td class="comp-product-cell">${escHtml(product.name)}${makeIntroPill(product)}${isCurrent && selectedProductName === product.name ? myProductBadge : ""}</td>
             <td>${makeSurchStr(product)}</td>
