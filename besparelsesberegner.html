@@ -1209,6 +1209,17 @@ const API       = "https://stromligning.dk/api";
 const AE_SLUG   = "altid-energi";
 const CACHE_TTL = 5 * 60 * 1000; // 5 min
 
+// Top 10 mest populære elselskaber i Danmark
+const POPULAR_SLUGS = [
+  "norlys", "andel-energi", "vindstod", "orsted", "e-on",
+  "nrgi", "energi-fyn", "modstrom", "ok", "ewii"
+];
+function isPopular(company) {
+  const slug = (company.slug || "").toLowerCase();
+  const name = (company.name || "").toLowerCase();
+  return POPULAR_SLUGS.some(s => slug.includes(s) || name.includes(s));
+}
+
 function toggleGroup(groupId) {
   const rows    = document.querySelectorAll(`[data-group="${groupId}"]`);
   const chevron = document.getElementById(`chev-${groupId}`);
@@ -1557,7 +1568,8 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
   const otherRows = competitors
     .filter(e =>
       e.company.slug !== AE_SLUG &&
-      e.company.slug !== currentSlug
+      e.company.slug !== currentSlug &&
+      isPopular(e.company)
     )
     .sort((a, b) => b.product.totalCost - a.product.totalCost); // dyreste øverst
 
