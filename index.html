@@ -1618,7 +1618,8 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
   const otherRows = competitors
     .filter(e =>
       e.company.slug !== AE_SLUG &&
-      e.company.slug !== currentSlug
+      e.company.slug !== currentSlug &&
+      e.product.totalCost > aeCost       // kun aftaler dyrere end AE
     )
     .sort((a, b) => b.product.totalCost - a.product.totalCost); // dyreste øverst
 
