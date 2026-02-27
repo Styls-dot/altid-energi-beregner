@@ -1568,8 +1568,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
   const otherRows = competitors
     .filter(e =>
       e.company.slug !== AE_SLUG &&
-      e.company.slug !== currentSlug &&
-      isPopular(e.company)
+      e.company.slug !== currentSlug
     )
     .sort((a, b) => b.product.totalCost - a.product.totalCost); // dyreste øverst
 
