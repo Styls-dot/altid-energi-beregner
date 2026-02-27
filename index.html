@@ -321,31 +321,6 @@
       color: var(--blue);
     }
 
-    /* Region toggle */
-    .region-toggle {
-      display: flex;
-      gap: 10px;
-    }
-    .region-toggle input[type="radio"] { display: none; }
-    .region-toggle label {
-      flex: 1;
-      margin: 0;
-      padding: 10px 16px;
-      border: 2px solid var(--border);
-      border-radius: 8px;
-      text-align: center;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all .15s;
-      user-select: none;
-    }
-    .region-toggle input[type="radio"]:checked + label {
-      border-color: var(--blue-cta);
-      background: var(--teal-light);
-      color: var(--blue);
-    }
 
     /* Select */
     select {
@@ -1006,8 +981,6 @@
       .slider-row input[type="range"] { order: -1; flex: 0 0 100%; }
       .kwh-display { width: 100%; justify-content: center; }
 
-      /* Region */
-      .region-toggle label { font-size: 13px; padding: 10px 8px; }
 
       /* CTA-knapper og callback */
       .cta-buttons { grid-template-columns: 1fr; }
@@ -1191,15 +1164,6 @@
       </div><!-- /field -->
     </div><!-- /estimateSection -->
 
-    <div class="field">
-      <label>Region <small>Bruges til at finde den rigtige nettarif</small></label>
-      <div class="region-toggle">
-        <input type="radio" name="region" id="dk1" value="DK1" checked />
-        <label for="dk1">DK1 &nbsp;·&nbsp; Jylland & Fyn</label>
-        <input type="radio" name="region" id="dk2" value="DK2" />
-        <label for="dk2">DK2 &nbsp;·&nbsp; Sjælland & øer</label>
-      </div>
-    </div>
 
     <div class="field">
       <label for="providerSelect">Dit nuværende elselskab <small>valgfrit</small></label>
@@ -1354,10 +1318,6 @@ evKmInput.addEventListener("change", () => {
   updateDisplay();
 });
 
-/* ── Region change → reload providers ───────────────────────── */
-document.querySelectorAll("input[name='region']").forEach(r => {
-  r.addEventListener("change", loadProviders);
-});
 
 /* ── Calculate button ────────────────────────────────────────── */
 calcBtn.addEventListener("click", calculate);
@@ -1384,7 +1344,7 @@ async function loadProviders() {
 
   try {
     const consumption = getConsumption();
-    const region      = document.querySelector("input[name='region']:checked").value;
+    const region      = "DK1";
     const companies   = await fetchCompanies(consumption, region);
 
     // Build flat list: one entry per company (cheapest variable product)
@@ -1467,7 +1427,7 @@ async function calculate() {
 
   try {
     const consumption = getConsumption();
-    const region      = document.querySelector("input[name='region']:checked").value;
+    const region      = "DK1";
     const companies   = await fetchCompanies(consumption, region);
 
     // Find Altid Energi
@@ -1634,7 +1594,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
   <div class="table-card">
     <div class="table-header">
       <h3>Hvad betaler andre?</h3>
-      <small>${fmtNum(consumption)} kWh/år &nbsp;·&nbsp; ${region}</small>
+      <small>${fmtNum(consumption)} kWh/år</small>
     </div>
     <div style="overflow-x:auto;max-width:100%">
       <table class="comp-table">
