@@ -425,41 +425,31 @@
       background: var(--teal-light);
       border: 2px solid var(--teal);
       border-radius: var(--radius);
-      padding: 24px;
+      padding: 24px 28px;
       margin-bottom: 24px;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      text-align: center;
-      gap: 8px;
+      justify-content: space-between;
+      gap: 20px;
     }
+    .ae-cost-left { display: flex; flex-direction: column; gap: 0; }
+    .ae-cost-right { text-align: right; flex-shrink: 0; }
     .ae-logo {
-      height: 28px;
+      height: 36px;
       width: auto;
       display: block;
     }
-    .ae-cost .name {
+    .ae-cost-label {
+      font-size: 11px;
       font-weight: 700;
-      font-size: 16px;
-      color: var(--text-dark);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    .ae-badge {
-      background: var(--blue-cta);
-      color: #fff;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: .06em;
+      letter-spacing: .07em;
       text-transform: uppercase;
-      padding: 3px 8px;
-      border-radius: 4px;
+      color: var(--blue-cta);
+      margin-bottom: 2px;
     }
-    .ae-cost .product-name { font-size: 13px; color: var(--text-muted); }
-    .ae-cost .price { font-size: 36px; font-weight: 800; color: var(--blue); line-height: 1.1; }
-    .ae-cost .unit { font-size: 13px; color: var(--text-muted); }
+    .ae-cost .product-name { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+    .ae-cost .price { font-size: 40px; font-weight: 800; color: var(--blue); line-height: 1; }
+    .ae-cost .unit { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
 
     /* Note box */
     .note-box {
@@ -1550,10 +1540,15 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
 
   html += `
   <div class="ae-cost">
-    <div class="name"><img src="https://altidenergi.dk/wp-content/uploads/2025/07/logo-2.png" alt="Altid Energi" class="ae-logo" /> <span class="ae-badge">Dit nye selskab</span></div>
-    <div class="product-name">${escHtml(aeBest.name)} &nbsp;·&nbsp; ${aeSurchDesc} &nbsp;·&nbsp; ingen binding</div>
-    <div class="price">${fmtDKK(aeAnnualCost)} kr.</div>
-    <div class="unit">om året inkl. moms</div>
+    <div class="ae-cost-left">
+      <div class="ae-cost-label">Dit nye selskab</div>
+      <img src="https://altidenergi.dk/wp-content/uploads/2025/07/logo-2.png" alt="Altid Energi" class="ae-logo" />
+      <div class="product-name">${escHtml(aeBest.name)} &nbsp;·&nbsp; ${aeSurchDesc} &nbsp;·&nbsp; ingen binding</div>
+    </div>
+    <div class="ae-cost-right">
+      <div class="price">${fmtDKK(aeAnnualCost)} kr.</div>
+      <div class="unit">om året inkl. moms</div>
+    </div>
   </div>`;
 
   // ── Info note ────────────────────────────────────────────────
