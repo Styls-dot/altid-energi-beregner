@@ -1528,27 +1528,12 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
     }
   }
 
-  // ── Altid Energi cost box ────────────────────────────────────
-  const aeSubPerMonth   = aeBest.subscriptionMonthly || 0;
-  const aeSurchargeKr   = aeBest.consumptionSurcharge || 0; // kr/kWh fra API
-  const aeSurchDesc     = aeSurchargeKr === 0
+  // aeAnnualCost bruges stadig i tabel-beregninger
+  const aeSubPerMonth = aeBest.subscriptionMonthly || 0;
+  const aeSurchargeKr = aeBest.consumptionSurcharge || 0;
+  const aeSurchDesc   = aeSurchargeKr === 0
     ? "0 øre/kWh tillæg"
     : `${fmtOere(aeSurchargeKr * VAT)} øre/kWh tillæg`;
-  // API returnerer priser ekskl. moms – gang med VAT for at vise hvad kunden betaler
-  const aeAnnualCost    = Math.round((aeSubPerMonth * 12 + aeSurchargeKr * consumption) * VAT);
-
-  html += `
-  <div class="ae-cost">
-    <div class="ae-cost-left">
-      <div class="ae-cost-label">Dit nye selskab</div>
-      <div class="ae-cost-name">Altid Energi</div>
-      <div class="product-name">${escHtml(aeBest.name)} &nbsp;·&nbsp; ${aeSurchDesc} &nbsp;·&nbsp; ingen binding</div>
-    </div>
-    <div class="ae-cost-right">
-      <div class="price">${fmtDKK(aeAnnualCost)} kr.</div>
-      <div class="unit">om året inkl. moms</div>
-    </div>
-  </div>`;
 
   // ── Info note ────────────────────────────────────────────────
   html += `
