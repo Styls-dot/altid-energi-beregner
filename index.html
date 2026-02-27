@@ -1618,8 +1618,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
   const otherRows = competitors
     .filter(e =>
       e.company.slug !== AE_SLUG &&
-      e.company.slug !== currentSlug &&
-      e.product.totalCost > aeCost       // kun aftaler dyrere end AE
+      e.company.slug !== currentSlug
     )
     .sort((a, b) => b.product.totalCost - a.product.totalCost); // dyreste øverst
 
@@ -1665,7 +1664,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
 
   function makeDiffCell(diff, isAE) {
     if (isAE)       return '<span class="diff-zero">Basis</span>';
-    if (diff < 0)   return `<span style="color:var(--slate-400);font-weight:600">${fmtDKK(diff)} kr.</span>`;
+    if (diff < 0)   return '<span style="color:#16a34a;font-weight:600;font-style:italic">muligvis billigere</span>';
     if (diff === 0) return '<span class="diff-zero">= 0</span>';
     return `<span class="diff-positive">+${fmtDKK(diff)} kr.</span>`;
   }
@@ -1704,7 +1703,7 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
       ? '<span class="diff-zero">Basis</span>'
       : maxDiff > 0
         ? `<span class="diff-positive">op til +${fmtDKK(maxDiff)} kr.</span>`
-        : `<span style="color:var(--slate-400);font-weight:600">${fmtDKK(maxDiff)} kr.</span>`;
+        : '<span style="color:#16a34a;font-weight:600;font-style:italic">muligvis billigere</span>';
 
     const chevron    = isClickable
       ? `<span class="group-chevron ${startExpanded ? 'open' : ''}" id="chev-${groupId}">›</span>`
