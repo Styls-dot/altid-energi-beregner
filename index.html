@@ -1129,7 +1129,7 @@
           <div class="ev-icon">🚗</div>
           <div class="ev-text">
             <div class="ev-title">Jeg har en elbil</div>
-            <div class="ev-sub" id="evSub">Tilføjer ca. 2.500 kWh/år til dit estimat</div>
+            <div class="ev-sub" id="evSub">Tilføjer ca. 3.000 kWh/år til dit estimat</div>
           </div>
           <div class="ev-toggle-dot"></div>
         </div>
@@ -1143,6 +1143,48 @@
             <input type="number" id="evKmInput" value="15000" min="1000" max="50000" step="1000" />
             <span>km/år</span>
           </div>
+        </div>
+      </div>
+
+      <label class="ev-label">
+        <input type="checkbox" id="vpToggle" />
+        <div class="ev-box">
+          <div class="ev-icon">🌡️</div>
+          <div class="ev-text">
+            <div class="ev-title">Jeg har en varmepumpe</div>
+            <div class="ev-sub" id="vpSub">Tilføjer ca. 7.000 kWh/år til dit estimat</div>
+          </div>
+          <div class="ev-toggle-dot"></div>
+        </div>
+      </label>
+
+      <div class="ev-km-field hidden" id="vpSizeField">
+        <label>Hvad er størrelsen på dit hus?</label>
+        <div class="housing-cards">
+          <label class="housing-card">
+            <input type="radio" name="vpSize" value="4000" />
+            <div class="card-inner">
+              <div class="card-icon">🏠</div>
+              <div class="card-label">Lille</div>
+              <div class="card-kwh">under 100 m²</div>
+            </div>
+          </label>
+          <label class="housing-card">
+            <input type="radio" name="vpSize" value="7000" checked />
+            <div class="card-inner">
+              <div class="card-icon">🏡</div>
+              <div class="card-label">Mellem</div>
+              <div class="card-kwh">100–150 m²</div>
+            </div>
+          </label>
+          <label class="housing-card">
+            <input type="radio" name="vpSize" value="12000" />
+            <div class="card-inner">
+              <div class="card-icon">🏘️</div>
+              <div class="card-label">Stor</div>
+              <div class="card-kwh">over 150 m²</div>
+            </div>
+          </label>
         </div>
       </div>
 
@@ -1237,6 +1279,9 @@ const provSelect         = document.getElementById("providerSelect");
 const calcBtn            = document.getElementById("calcBtn");
 const resultsEl          = document.getElementById("results");
 const evToggle           = document.getElementById("evToggle");
+const vpToggle           = document.getElementById("vpToggle");
+const vpSizeField        = document.getElementById("vpSizeField");
+const vpSub              = document.getElementById("vpSub");
 const consumptionDisplay = document.getElementById("consumptionDisplay");
 const manualSection      = document.getElementById("manualSection");
 const estimateSection    = document.getElementById("estimateSection");
@@ -1271,8 +1316,11 @@ function getConsumption() {
   }
   const selected = document.querySelector("input[name='housing']:checked");
   const base = selected ? Number(selected.value) : 2500;
-  const evKm = evToggle.checked ? (Number(evKmInput.value) || 15000) : 0;
-  return base + Math.round(evKm * EV_KWH_PER_KM);
+  const evKm  = evToggle.checked ? (Number(evKmInput.value) || 15000) : 0;
+  const vpKwh = vpToggle.checked
+    ? Number(document.querySelector("input[name='vpSize']:checked")?.value || 7000)
+    : 0;
+  return base + Math.round(evKm * EV_KWH_PER_KM) + vpKwh;
 }
 
 /* ── Opdater estimat-display ─────────────────────────────────── */
@@ -1280,12 +1328,22 @@ function updateDisplay() {
   const evOn = evToggle.checked;
   evKmField.classList.toggle("hidden", !evOn);
   if (evOn) {
-    const km = Number(evKmInput.value) || 15000;
+    const km  = Number(evKmInput.value) || 15000;
     const kwh = Math.round(km * EV_KWH_PER_KM);
     evSub.textContent = `Tilføjer ca. ${fmtNum(kwh)} kWh/år til dit estimat`;
   } else {
     evSub.textContent = "Tilføjer ca. 3.000 kWh/år til dit estimat";
   }
+
+  const vpOn = vpToggle.checked;
+  vpSizeField.classList.toggle("hidden", !vpOn);
+  if (vpOn) {
+    const kwh = Number(document.querySelector("input[name='vpSize']:checked")?.value || 7000);
+    vpSub.textContent = `Tilføjer ca. ${fmtNum(kwh)} kWh/år til dit estimat`;
+  } else {
+    vpSub.textContent = "Tilføjer ca. 7.000 kWh/år til dit estimat";
+  }
+
   consumptionDisplay.textContent = fmtNum(getConsumption()) + " kWh";
 }
 
@@ -1306,6 +1364,10 @@ document.querySelectorAll("input[name='housing']").forEach(r => {
   r.addEventListener("change", updateDisplay);
 });
 evToggle.addEventListener("change", updateDisplay);
+vpToggle.addEventListener("change", updateDisplay);
+document.querySelectorAll("input[name='vpSize']").forEach(r => {
+  r.addEventListener("change", updateDisplay);
+});
 evKmSlider.addEventListener("input", () => {
   evKmInput.value = evKmSlider.value;
   updateDisplay();
