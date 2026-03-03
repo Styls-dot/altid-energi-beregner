@@ -1097,7 +1097,7 @@
         <div class="housing-section-label">Hus / villa</div>
         <div class="housing-cards">
           <label class="housing-card">
-            <input type="radio" name="housing" value="3500" />
+            <input type="radio" name="housing" value="3500" data-type="house" />
             <div class="card-inner">
               <div class="card-icon">🏠</div>
               <div class="card-title">Op til 100 m²</div>
@@ -1105,7 +1105,7 @@
             </div>
           </label>
           <label class="housing-card">
-            <input type="radio" name="housing" value="5000" />
+            <input type="radio" name="housing" value="5000" data-type="house" />
             <div class="card-inner">
               <div class="card-icon">🏠</div>
               <div class="card-title">100–150 m²</div>
@@ -1113,7 +1113,7 @@
             </div>
           </label>
           <label class="housing-card">
-            <input type="radio" name="housing" value="7500" />
+            <input type="radio" name="housing" value="7500" data-type="house" />
             <div class="card-inner">
               <div class="card-icon">🏠</div>
               <div class="card-title">Over 150 m²</div>
@@ -1146,47 +1146,17 @@
         </div>
       </div>
 
-      <label class="ev-label">
+      <label class="ev-label hidden" id="vpLabel">
         <input type="checkbox" id="vpToggle" />
         <div class="ev-box">
           <div class="ev-icon">🌡️</div>
           <div class="ev-text">
             <div class="ev-title">Jeg har en varmepumpe</div>
-            <div class="ev-sub" id="vpSub">Tilføjer ca. 7.000 kWh/år til dit estimat</div>
+            <div class="ev-sub" id="vpSub">Tilføjer ca. 4.000 kWh/år til dit estimat</div>
           </div>
           <div class="ev-toggle-dot"></div>
         </div>
       </label>
-
-      <div class="ev-km-field hidden" id="vpSizeField">
-        <label>Hvad er størrelsen på dit hus?</label>
-        <div class="housing-cards">
-          <label class="housing-card">
-            <input type="radio" name="vpSize" value="4000" />
-            <div class="card-inner">
-              <div class="card-icon">🏠</div>
-              <div class="card-label">Lille</div>
-              <div class="card-kwh">under 100 m²</div>
-            </div>
-          </label>
-          <label class="housing-card">
-            <input type="radio" name="vpSize" value="7000" checked />
-            <div class="card-inner">
-              <div class="card-icon">🏡</div>
-              <div class="card-label">Mellem</div>
-              <div class="card-kwh">100–150 m²</div>
-            </div>
-          </label>
-          <label class="housing-card">
-            <input type="radio" name="vpSize" value="12000" />
-            <div class="card-inner">
-              <div class="card-icon">🏘️</div>
-              <div class="card-label">Stor</div>
-              <div class="card-kwh">over 150 m²</div>
-            </div>
-          </label>
-        </div>
-      </div>
 
       <div class="consumption-estimate">
         <span>Estimeret årsforbrug</span>
@@ -1280,8 +1250,20 @@ const calcBtn            = document.getElementById("calcBtn");
 const resultsEl          = document.getElementById("results");
 const evToggle           = document.getElementById("evToggle");
 const vpToggle           = document.getElementById("vpToggle");
-const vpSizeField        = document.getElementById("vpSizeField");
+const vpLabel            = document.getElementById("vpLabel");
 const vpSub              = document.getElementById("vpSub");
+
+// Varmepumpe-forbrug baseret på husstørrelse (kWh/år)
+const VP_KWH_MAP = { 3500: 4000, 5000: 6000, 7500: 8000 };
+
+function getHouseValue() {
+  const sel = document.querySelector("input[name='housing']:checked");
+  return sel ? { value: Number(sel.value), isHouse: sel.dataset.type === "house" } : { value: 2500, isHouse: false };
+}
+function getVpKwh() {
+  const { value } = getHouseValue();
+  return VP_KWH_MAP[value] || 4000;
+}
 const consumptionDisplay = document.getElementById("consumptionDisplay");
 const manualSection      = document.getElementById("manualSection");
 const estimateSection    = document.getElementById("estimateSection");
@@ -1317,9 +1299,7 @@ function getConsumption() {
   const selected = document.querySelector("input[name='housing']:checked");
   const base = selected ? Number(selected.value) : 2500;
   const evKm  = evToggle.checked ? (Number(evKmInput.value) || 15000) : 0;
-  const vpKwh = vpToggle.checked
-    ? Number(document.querySelector("input[name='vpSize']:checked")?.value || 7000)
-    : 0;
+  const vpKwh = vpToggle.checked ? getVpKwh() : 0;
   return base + Math.round(evKm * EV_KWH_PER_KM) + vpKwh;
 }
 
@@ -1335,14 +1315,11 @@ function updateDisplay() {
     evSub.textContent = "Tilføjer ca. 3.000 kWh/år til dit estimat";
   }
 
-  const vpOn = vpToggle.checked;
-  vpSizeField.classList.toggle("hidden", !vpOn);
-  if (vpOn) {
-    const kwh = Number(document.querySelector("input[name='vpSize']:checked")?.value || 7000);
-    vpSub.textContent = `Tilføjer ca. ${fmtNum(kwh)} kWh/år til dit estimat`;
-  } else {
-    vpSub.textContent = "Tilføjer ca. 7.000 kWh/år til dit estimat";
-  }
+  const { isHouse } = getHouseValue();
+  vpLabel.classList.toggle("hidden", !isHouse);
+  if (!isHouse) vpToggle.checked = false;
+  const vpKwh = getVpKwh();
+  vpSub.textContent = `Tilføjer ca. ${fmtNum(vpKwh)} kWh/år til dit estimat`;
 
   consumptionDisplay.textContent = fmtNum(getConsumption()) + " kWh";
 }
@@ -1365,9 +1342,6 @@ document.querySelectorAll("input[name='housing']").forEach(r => {
 });
 evToggle.addEventListener("change", updateDisplay);
 vpToggle.addEventListener("change", updateDisplay);
-document.querySelectorAll("input[name='vpSize']").forEach(r => {
-  r.addEventListener("change", updateDisplay);
-});
 evKmSlider.addEventListener("input", () => {
   evKmInput.value = evKmSlider.value;
   updateDisplay();
