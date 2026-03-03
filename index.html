@@ -1544,14 +1544,32 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
   let html = "";
 
   // ── Besparelsesbanners ────────────────────────────────────────
+
+  // Besparelser på tværs af alle aftaler dyrere end AE
+  const pricierSavings = competitors
+    .filter(e => e.company.slug !== AE_SLUG && e.product.totalCost > aeCost)
+    .map(e => Math.round((e.product.totalCost - aeCost) * VAT));
+  const globalMin = pricierSavings.length ? Math.min(...pricierSavings) : 0;
+  const globalMax = pricierSavings.length ? Math.max(...pricierSavings) : 0;
+
   if (currentCheapest) {
     const saving = Math.round((currentCheapest.product.totalCost - aeCost) * VAT);
 
     if (saving > 0) {
+      // Interval baseret på brugerens eget selskabs aftaler
+      const currentSavings = currentFiltered
+        .filter(e => e.product.totalCost > aeCost)
+        .map(e => Math.round((e.product.totalCost - aeCost) * VAT));
+      const minS = currentSavings.length ? Math.min(...currentSavings) : saving;
+      const maxS = currentSavings.length ? Math.max(...currentSavings) : saving;
+      const rangeText = minS === maxS
+        ? `${fmtDKK(minS)} kr.`
+        : `${fmtDKK(minS)} – ${fmtDKK(maxS)} kr.`;
+
       html += `
       <div class="savings-banner">
         <div class="label">Din potentielle besparelse</div>
-        <div class="amount">${fmtDKK(saving)} kr.</div>
+        <div class="amount">${rangeText}</div>
         <div class="sub">om året ved at skifte fra <strong>${escHtml(currentCheapest.company.name)}</strong> til Altid Energi</div>
         ${currentCheapest.product.introductoryOffer ? `
         <div class="intro-disclaimer">
@@ -1573,6 +1591,17 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
         </div>
       </div>`;
     }
+  } else if (globalMax > 0) {
+    // Ingen provider valgt – vis interval på tværs af alle dyrere selskaber
+    const rangeText = globalMin === globalMax
+      ? `${fmtDKK(globalMin)} kr.`
+      : `${fmtDKK(globalMin)} – ${fmtDKK(globalMax)} kr.`;
+    html += `
+    <div class="savings-banner">
+      <div class="label">Hvad kan du spare?</div>
+      <div class="amount">${rangeText}</div>
+      <div class="sub">er forskellen på markedets dyreste og Altid Energis pris – vælg dit nuværende selskab for at se din præcise besparelse</div>
+    </div>`;
   }
 
   // aeAnnualCost bruges stadig i tabel-beregninger
