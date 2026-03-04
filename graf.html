@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elselskab Sammenligning – Altid Energi</title>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Onest', sans-serif; background: transparent; color: #101D2F; }
+  #ae-graf { max-width: 900px; margin: 0 auto; padding: 20px; }
+
+  .aeg-header { text-align: center; margin-bottom: 32px; }
+
+  .aeg-boxes { display: flex; justify-content: center; gap: 12px; margin-bottom: 16px; }
+  .aeg-box {
+    flex: 1; max-width: 180px; padding: 16px 12px; border: 2px solid #e2e5ea;
+    border-radius: 12px; cursor: pointer; text-align: center;
+    transition: border-color 0.2s ease, background 0.2s ease; background: #fff;
+  }
+  .aeg-box:hover { border-color: #a0b4d0; }
+  .aeg-box.active { border-color: #1F6AFF; background: #f0f5ff; }
+  .aeg-box-label { font-size: 14px; font-weight: 600; color: #101D2F; display: block; }
+  .aeg-box-kwh { font-size: 12px; color: #666; display: block; margin-top: 2px; }
+
+  .aeg-ev-wrap { display: flex; justify-content: center; align-items: center; gap: 10px; }
+  .aeg-ev-toggle {
+    position: relative; width: 44px; height: 24px; background: #ccc;
+    border-radius: 12px; cursor: pointer; transition: background 0.2s ease;
+    border: none; outline: none; padding: 0;
+  }
+  .aeg-ev-toggle.active { background: #1F6AFF; }
+  .aeg-ev-toggle::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 20px; height: 20px; background: #fff; border-radius: 50%;
+    transition: transform 0.2s ease;
+  }
+  .aeg-ev-toggle.active::after { transform: translateX(20px); }
+  .aeg-ev-label { font-size: 14px; font-weight: 500; color: #101D2F; cursor: pointer; }
+  .aeg-ev-kwh { font-size: 12px; color: #666; }
+
+  .aeg-dd-wrap { display: none; justify-content: center; }
+  .aeg-dd {
+    appearance: none; -webkit-appearance: none; background: #1F6AFF; color: #fff;
+    border: none; border-radius: 30px; padding: 14px 48px 14px 32px;
+    font-family: 'Onest', sans-serif; font-size: 18px; font-weight: 600;
+    cursor: pointer; outline: none; width: auto; display: inline-block;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10' fill='none'%3E%3Cpath d='M1 1l7 7 7-7' stroke='%23fff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: calc(100% - 20px) center;
+  }
+  .aeg-dd option { background: #fff; color: #101D2F; }
+
+  .aeg-chart { margin-top: 40px; position: relative; }
+  .aeg-ylabel { position: absolute; top: 0; left: 0; font-size: 13px; color: #666; line-height: 1.4; }
+  .aeg-vbars {
+    display: flex; align-items: flex-end; justify-content: center;
+    gap: 24px; padding-left: 80px; min-height: 380px; padding-top: 20px;
+  }
+  .aeg-vg { display: flex; flex-direction: column; align-items: center; flex: 1; max-width: 120px; }
+  .aeg-vg .aeg-badge {
+    background: #FFD15C; color: #101D2F; font-size: 12px; font-weight: 600;
+    padding: 4px 10px; border-radius: 6px; margin-bottom: 4px; white-space: nowrap;
+  }
+  .aeg-vg .aeg-price { font-size: 14px; font-weight: 600; margin-bottom: 6px; white-space: nowrap; color: #101D2F; }
+  .aeg-vbar {
+    width: 100%; max-width: 80px; border-radius: 6px 6px 0 0; min-height: 4px;
+    transition: height 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .aeg-vbar.hl { background: linear-gradient(180deg, #73D0E7 0%, #5BBDD4 100%); transition: height 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.2s ease; }
+  .aeg-vbar.nm { background: linear-gradient(180deg, #A8C8F0 0%, #7BAEE8 100%); transition: height 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.2s ease; }
+  .aeg-vg:hover .aeg-vbar { opacity: 0.75; }
+  .aeg-vg .aeg-co { margin-top: 10px; font-size: 14px; font-weight: 600; text-align: center; color: #101D2F; min-height: 20px; }
+  .aeg-vg .aeg-co.hl { color: #1F6AFF; text-decoration: underline; }
+  .aeg-vg .aeg-prod { font-size: 11px; color: #666; text-align: center; margin-top: 2px; height: 32px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 120px; }
+
+  .aeg-hbars { display: none; }
+  .aeg-hr { margin-bottom: 20px; }
+  .aeg-htop { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .aeg-hco { display: flex; flex-direction: column; }
+  .aeg-hco .aeg-co { font-size: 14px; font-weight: 600; color: #101D2F; }
+  .aeg-hco .aeg-co.hl { color: #1F6AFF; text-decoration: underline; }
+  .aeg-hco .aeg-prod { font-size: 12px; color: #666; margin-top: 1px; }
+  .aeg-hmeta { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .aeg-hmeta .aeg-badge {
+    background: #FFD15C; color: #101D2F; font-size: 11px; font-weight: 600;
+    padding: 3px 8px; border-radius: 5px; white-space: nowrap;
+  }
+  .aeg-hmeta .aeg-price { font-size: 15px; font-weight: 700; white-space: nowrap; color: #101D2F; }
+  .aeg-htrack { width: 100%; height: 36px; background: #f0f2f5; border-radius: 8px; overflow: hidden; }
+  .aeg-hbar {
+    height: 100%; border-radius: 8px; min-width: 4px;
+    transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .aeg-hbar.hl { background: linear-gradient(90deg, #5BBDD4 0%, #73D0E7 100%); transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.2s ease; }
+  .aeg-hbar.nm { background: linear-gradient(90deg, #7BAEE8 0%, #A8C8F0 100%); transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.2s ease; }
+  .aeg-hr:hover .aeg-hbar { opacity: 0.75; }
+
+  .aeg-footer { text-align: center; margin-top: 16px; font-size: 14px; color: #101D2F; }
+  .aeg-footer strong { font-weight: 600; }
+  .aeg-footer a { color: #1F6AFF; }
+
+  .aeg-loading { text-align: center; padding: 80px 0; color: #666; font-size: 16px; }
+  .aeg-spinner {
+    width: 40px; height: 40px; border: 4px solid #eee; border-top-color: #1F6AFF;
+    border-radius: 50%; animation: aegSpin 0.8s linear infinite; margin: 0 auto 16px;
+  }
+  @keyframes aegSpin { to { transform: rotate(360deg); } }
+  .aeg-error { text-align: center; padding: 40px; color: #c00; font-size: 14px; }
+
+  @media (max-width: 680px) {
+    #ae-graf { padding: 16px; }
+    .aeg-boxes { display: none; }
+    .aeg-ev-wrap { display: none; }
+    .aeg-dd-wrap { display: flex; }
+    .aeg-dd { font-size: 16px; padding: 12px 44px 12px 24px; }
+    .aeg-vbars { display: none; }
+    .aeg-ylabel { display: none; }
+    .aeg-hbars { display: block; }
+    .aeg-footer { font-size: 13px; margin-top: 32px; }
+  }
+</style>
+</head>
+<body>
+<div id="ae-graf">
+  <div class="aeg-header">
+    <div class="aeg-boxes" id="aeg-boxes">
+      <div class="aeg-box active" data-kwh="2500">
+        <span class="aeg-box-label">Lejlighed</span>
+        <span class="aeg-box-kwh">2.500 kWh/år</span>
+      </div>
+      <div class="aeg-box" data-kwh="3500">
+        <span class="aeg-box-label">Rækkehus</span>
+        <span class="aeg-box-kwh">3.500 kWh/år</span>
+      </div>
+      <div class="aeg-box" data-kwh="5000">
+        <span class="aeg-box-label">Hus</span>
+        <span class="aeg-box-kwh">5.000 kWh/år</span>
+      </div>
+      <div class="aeg-box" data-kwh="8000">
+        <span class="aeg-box-label">Stort hus</span>
+        <span class="aeg-box-kwh">8.000 kWh/år</span>
+      </div>
+    </div>
+    <div class="aeg-ev-wrap">
+      <button class="aeg-ev-toggle" id="aeg-ev-toggle" type="button"></button>
+      <span class="aeg-ev-label" id="aeg-ev-label">Tilføj elbil</span>
+      <span class="aeg-ev-kwh">(+3.000 kWh/år)</span>
+    </div>
+    <div class="aeg-dd-wrap">
+      <select class="aeg-dd" id="aeg-consumption">
+        <option value="2500">Lejlighed – 2.500 kWh</option>
+        <option value="3500">Rækkehus – 3.500 kWh</option>
+        <option value="5000">Hus – 5.000 kWh</option>
+        <option value="8000">Stort hus – 8.000 kWh</option>
+      </select>
+    </div>
+  </div>
+  <div id="aeg-chart">
+    <div class="aeg-loading"><div class="aeg-spinner"></div>Henter priser...</div>
+  </div>
+  <div class="aeg-footer" id="aeg-footer" style="display:none;">
+    Sammenligning foretaget <strong id="aeg-date"></strong> baseret på prisinformation fra <a href="https://stromligning.dk" target="_blank">Strømligning.dk</a>
+  </div>
+</div>
+<script>
+(function() {
+  var API = "https://stromligning.dk/api";
+  var REGION = "dk1";
+  var VAT = 1.25;
+  var EV_KWH = 3000;
+  var TARGETS = [
+    { slug: "altid-energi", dn: "Altid Energi", pm: "indkøbspris", hl: true },
+    { slug: "ewii", dn: "EWII", pm: "basis", hl: false },
+    { slug: "modstroem", dn: "Modstrøm", pm: "enkel", hl: false },
+    { slug: "norlys", dn: "Norlys", pm: "flexel", hl: false },
+    { slug: "andel-energi", dn: "Andel Energi", pm: "timeenergi", hl: false },
+    { slug: "vindstoed", dn: "Vindstød", pm: "timeel", hl: false }
+  ];
+  var cache = {};
+  var selectedKwh = 2500;
+  var evActive = false;
+
+  function fmt(n) { return Math.round(n).toLocaleString("da-DK") + " kr."; }
+  function fmtN(n) { return n.toLocaleString("da-DK"); }
+  function today() {
+    var d = new Date();
+    var m = ["januar","februar","marts","april","maj","juni","juli","august","september","oktober","november","december"];
+    return d.getDate() + ". " + m[d.getMonth()] + " " + d.getFullYear();
+  }
+  function getConsumption() { return evActive ? selectedKwh + EV_KWH : selectedKwh; }
+
+  function findProd(co, ms) {
+    if (!co || !co.products) return null;
+    var ps = co.products.filter(function(p) { return !p.excludeInComparison && !p.introductoryOffer && p.totalCost != null; });
+    if (!ps.length) return null;
+    var found = ps.find(function(p) { return p.name.toLowerCase().indexOf(ms.toLowerCase()) !== -1; });
+    if (found) return found;
+    var v = ps.filter(function(p) { return p.productType === "variable"; });
+    if (v.length) return v.reduce(function(a, b) { return a.totalCost < b.totalCost ? a : b; });
+    return ps.reduce(function(a, b) { return a.totalCost < b.totalCost ? a : b; });
+  }
+
+  function fetchData(c, cb) {
+    if (cache[c]) return cb(null, cache[c]);
+    fetch(API + "/companies?yearlyConsumption=" + c + "&region=" + REGION + "&periodMonths=12")
+      .then(function(r) { if (!r.ok) throw new Error("API fejl: " + r.status); return r.json(); })
+      .then(function(d) { cache[c] = d; cb(null, d); })
+      .catch(function(e) { cb(e); });
+  }
+
+  function render(results, consumption) {
+    results.sort(function(a, b) { return a.price - b.price; });
+    var base = results[0].price;
+    var max = results[results.length - 1].price;
+    var h = '<div class="aeg-chart">';
+    h += '<div class="aeg-ylabel">Kr./år<br>Ved ' + fmtN(consumption) + '<br>kWh årligt</div>';
+    h += '<div class="aeg-vbars">';
+    results.forEach(function(it) {
+      var bh = Math.max(8, (it.price / max) * 300);
+      var m = it.price / base;
+      var c = it.hl ? "hl" : "nm";
+      var nc = it.hl ? "aeg-co hl" : "aeg-co";
+      h += '<div class="aeg-vg">';
+      if (m > 1.1) h += '<div class="aeg-badge">' + m.toFixed(1) + 'x dyrere</div>'; else if (m > 1.0) h += '<div class="aeg-badge">Lidt dyrere</div>';
+      h += '<div class="aeg-price">' + fmt(it.price) + '</div>';
+      h += '<div class="aeg-vbar ' + c + '" style="height:' + bh + 'px"></div>';
+      h += '<div class="' + nc + '">' + it.dn + '</div>';
+      h += '<div class="aeg-prod">' + it.pn + '</div></div>';
+    });
+    h += '</div>';
+    h += '<div class="aeg-hbars">';
+    results.forEach(function(it) {
+      var pct = Math.max(3, (it.price / max) * 100);
+      var m = it.price / base;
+      var c = it.hl ? "hl" : "nm";
+      var nc = it.hl ? "aeg-co hl" : "aeg-co";
+      h += '<div class="aeg-hr"><div class="aeg-htop">';
+      h += '<div class="aeg-hco"><span class="' + nc + '">' + it.dn + '</span><span class="aeg-prod">' + it.pn + '</span></div>';
+      h += '<div class="aeg-hmeta">';
+      if (m > 1.1) h += '<span class="aeg-badge">' + m.toFixed(1) + 'x dyrere</span>'; else if (m > 1.0) h += '<span class="aeg-badge">Lidt dyrere</span>';
+      h += '<span class="aeg-price">' + fmt(it.price) + '</span>';
+      h += '</div></div>';
+      h += '<div class="aeg-htrack"><div class="aeg-hbar ' + c + '" style="width:' + pct + '%"></div></div></div>';
+    });
+    h += '</div></div>';
+    document.getElementById("aeg-chart").innerHTML = h;
+    document.getElementById("aeg-date").textContent = today();
+    document.getElementById("aeg-footer").style.display = "block";
+  }
+
+  function update() {
+    var c = getConsumption();
+    document.getElementById("aeg-chart").innerHTML = '<div class="aeg-loading"><div class="aeg-spinner"></div>Henter priser...</div>';
+    fetchData(c, function(err, companies) {
+      if (err) { document.getElementById("aeg-chart").innerHTML = '<div class="aeg-error">Fejl: ' + err.message + '</div>'; return; }
+      var results = [];
+      TARGETS.forEach(function(t) {
+        var co = companies.find(function(x) { return x.slug === t.slug; });
+        if (!co) return;
+        var prod = findProd(co, t.pm);
+        if (!prod) return;
+        results.push({ slug: t.slug, dn: t.dn, pn: prod.name.replace(/\s*-\s*\d+\s*kr\/md\s*/i, "").trim(), price: Math.round(prod.totalCost * VAT), hl: t.hl });
+      });
+      if (!results.length) { document.getElementById("aeg-chart").innerHTML = '<div class="aeg-error">Kunne ikke hente priser. Prøv igen senere.</div>'; return; }
+      render(results, c);
+    });
+  }
+
+  var boxes = document.querySelectorAll("#aeg-boxes .aeg-box");
+  boxes.forEach(function(box) {
+    box.addEventListener("click", function() {
+      boxes.forEach(function(b) { b.classList.remove("active"); });
+      box.classList.add("active");
+      selectedKwh = parseInt(box.getAttribute("data-kwh"));
+      update();
+    });
+  });
+
+  var evToggle = document.getElementById("aeg-ev-toggle");
+  var evLabel = document.getElementById("aeg-ev-label");
+  function toggleEv() { evActive = !evActive; evToggle.classList.toggle("active", evActive); update(); }
+  evToggle.addEventListener("click", toggleEv);
+  evLabel.addEventListener("click", toggleEv);
+
+  document.getElementById("aeg-consumption").addEventListener("change", function() {
+    selectedKwh = parseInt(this.value);
+    update();
+  });
+
+  update();
+})();
+</script>
+</body>
+</html>
