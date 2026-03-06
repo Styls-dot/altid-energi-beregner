@@ -1556,15 +1556,21 @@ function renderResults({ consumption, region, aeBest, aeCompany, competitors, cu
     const saving = Math.round((currentCheapest.product.totalCost - aeCost) * VAT);
 
     if (saving > 0) {
-      // Interval baseret på brugerens eget selskabs aftaler
-      const currentSavings = currentFiltered
-        .filter(e => e.product.totalCost > aeCost)
-        .map(e => Math.round((e.product.totalCost - aeCost) * VAT));
-      const minS = currentSavings.length ? Math.min(...currentSavings) : saving;
-      const maxS = currentSavings.length ? Math.max(...currentSavings) : saving;
-      const rangeText = minS === maxS
-        ? `${fmtDKK(minS)} kr.`
-        : `${fmtDKK(minS)} – ${fmtDKK(maxS)} kr.`;
+      // Interval baseret på brugerens eget selskabs aftaler – kun hvis ingen specifik aftale er valgt
+      let rangeText;
+      if (selectedProductName) {
+        // Brugeren har valgt en specifik aftale – vis præcist beløb
+        rangeText = `${fmtDKK(saving)} kr.`;
+      } else {
+        const currentSavings = currentFiltered
+          .filter(e => e.product.totalCost > aeCost)
+          .map(e => Math.round((e.product.totalCost - aeCost) * VAT));
+        const minS = currentSavings.length ? Math.min(...currentSavings) : saving;
+        const maxS = currentSavings.length ? Math.max(...currentSavings) : saving;
+        rangeText = minS === maxS
+          ? `${fmtDKK(minS)} kr.`
+          : `${fmtDKK(minS)} – ${fmtDKK(maxS)} kr.`;
+      }
 
       html += `
       <div class="savings-banner">
